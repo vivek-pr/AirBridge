@@ -1,8 +1,8 @@
 FROM python:3.11-slim
 
 ENV AIRFLOW_HOME=/opt/airflow \
-    AIRFLOW_VERSION=3.0.4 \
-    PATH="${AIRFLOW_HOME}/.local/bin:${PATH}"
+    AIRFLOW_VERSION=3.0.4
+ENV PATH="${AIRFLOW_HOME}/.local/bin:${PATH}"
 
 RUN set -ex \
     && apt-get update \
@@ -16,7 +16,7 @@ WORKDIR ${AIRFLOW_HOME}
 
 RUN pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}"
 
-COPY ../scripts/entrypoint.sh /entrypoint.sh
+COPY scripts/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD airflow jobs check --job-type SchedulerJob || exit 1

@@ -9,5 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Placeholder
-        run: echo "CI placeholder"
+      - name: Build control plane images
+        run: make build-control-plane
+      - name: Verify Airflow CLI
+        run: |
+          docker run --rm airbridge-webserver:3.0.4 airflow version
+          docker run --rm airbridge-scheduler:3.0.4 airflow version
+          docker run --rm airbridge-triggerer:3.0.4 airflow version
