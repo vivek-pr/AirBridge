@@ -12,3 +12,7 @@ triggerer:
   image: airbridge-triggerer
   tag: "3.0.4"
   pullPolicy: IfNotPresent
+
+edgeApi:
+  enabled: true
+  tokenSecretName: edge-api-token
