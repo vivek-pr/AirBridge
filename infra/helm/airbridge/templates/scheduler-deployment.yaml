@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "airbridge.fullname" . }}-scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "airbridge.fullname" . }}-scheduler
+  template:
+    metadata:
+      labels:
+        app: {{ include "airbridge.fullname" . }}-scheduler
+    spec:
+      containers:
+      - name: scheduler
+        image: "{{ .Values.scheduler.image }}:{{ .Values.scheduler.tag }}"
+        imagePullPolicy: {{ .Values.scheduler.pullPolicy }}

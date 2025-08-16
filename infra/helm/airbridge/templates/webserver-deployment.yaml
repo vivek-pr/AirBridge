@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "airbridge.fullname" . }}-webserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "airbridge.fullname" . }}-webserver
+  template:
+    metadata:
+      labels:
+        app: {{ include "airbridge.fullname" . }}-webserver
+    spec:
+      containers:
+      - name: webserver
+        image: "{{ .Values.webserver.image }}:{{ .Values.webserver.tag }}"
+        imagePullPolicy: {{ .Values.webserver.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.webserver.service.port }}

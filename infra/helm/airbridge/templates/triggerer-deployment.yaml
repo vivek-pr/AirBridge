@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "airbridge.fullname" . }}-triggerer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "airbridge.fullname" . }}-triggerer
+  template:
+    metadata:
+      labels:
+        app: {{ include "airbridge.fullname" . }}-triggerer
+    spec:
+      containers:
+      - name: triggerer
+        image: "{{ .Values.triggerer.image }}:{{ .Values.triggerer.tag }}"
+        imagePullPolicy: {{ .Values.triggerer.pullPolicy }}
