@@ -16,3 +16,6 @@ spec:
       - name: scheduler
         image: "{{ .Values.scheduler.image }}:{{ .Values.scheduler.tag }}"
         imagePullPolicy: {{ .Values.scheduler.pullPolicy }}
+        env:
+        - name: AIRFLOW__CORE__EXECUTOR
+          value: EdgeExecutor
