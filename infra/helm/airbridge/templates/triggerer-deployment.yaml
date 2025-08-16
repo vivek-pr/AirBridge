@@ -16,3 +16,6 @@ spec:
       - name: triggerer
         image: "{{ .Values.triggerer.image }}:{{ .Values.triggerer.tag }}"
         imagePullPolicy: {{ .Values.triggerer.pullPolicy }}
+        env:
+        - name: AIRFLOW__CORE__EXECUTOR
+          value: EdgeExecutor

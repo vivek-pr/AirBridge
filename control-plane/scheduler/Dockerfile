@@ -16,6 +16,8 @@ WORKDIR ${AIRFLOW_HOME}
 
 RUN pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}"
 
+COPY airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
+
 COPY scripts/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 

@@ -16,5 +16,15 @@ spec:
       - name: webserver
         image: "{{ .Values.webserver.image }}:{{ .Values.webserver.tag }}"
         imagePullPolicy: {{ .Values.webserver.pullPolicy }}
+        env:
+        - name: AIRFLOW__CORE__EXECUTOR
+          value: EdgeExecutor
+        - name: AIRFLOW__API__EDGE__ENABLED
+          value: {{ .Values.edgeApi.enabled | quote }}
+        - name: EDGE_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.edgeApi.tokenSecretName }}
+              key: token
         ports:
         - containerPort: {{ .Values.webserver.service.port }}
