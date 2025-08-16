@@ -1,0 +1,6 @@
+apiVersion: v2
+name: airbridge-control-plane
+description: Helm chart for AirBridge control plane for local development
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
