@@ -18,3 +18,20 @@ triggerer:
 edgeApi:
   enabled: true
   tokenSecretName: edge-api-token
+
+dags:
+  path: /opt/airflow/dags
+  persistence:
+    enabled: true
+    size: 5Gi
+    # Use an RWX class if multiple pods may run on different nodes.
+    # Common examples:
+    #  - EKS:  efs-sc
+    #  - AKS:  azurefile-csi
+    #  - GKE:  filestore-csi
+    storageClassName: standard 
+    accessMode: ReadWriteMany   # If your class only supports RWO, change to ReadWriteOnce
+
+  # If you prefer pulling DAGs from git, enable this instead of (or in addition to) manual uploads.
+  gitSync:
+    enabled: false     

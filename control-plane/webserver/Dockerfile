@@ -21,6 +21,8 @@ RUN pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}" --constraint
 # Copy your cfg with [core] executor = EdgeExecutor
 COPY airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
 
+RUN mkdir -p ${AIRFLOW_HOME}/dags
+COPY dags/ ${AIRFLOW_HOME}/dags/
 
 COPY scripts/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
