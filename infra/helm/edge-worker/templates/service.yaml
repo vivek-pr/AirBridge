@@ -1,0 +1,15 @@
+{{- if .Values.metrics.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "edge-worker.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "edge-worker.fullname" . }}
+spec:
+  ports:
+    - name: metrics
+      port: {{ .Values.metrics.port }}
+      targetPort: {{ .Values.metrics.port }}
+  selector:
+    app.kubernetes.io/name: {{ include "edge-worker.fullname" . }}
+{{- end }}
