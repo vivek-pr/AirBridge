@@ -1,0 +1,19 @@
+mode: daemonset
+queue: tenant-a
+controlPlane:
+  url: https://cp.example.com
+  tokenSecret:
+    name: tenant-a-edge-token
+    key: token
+metrics:
+  enabled: true
+  port: 9102
+  serviceMonitor:
+    enabled: true
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
