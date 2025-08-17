@@ -29,6 +29,8 @@ flower:
 edgeApi:
   enabled: true
   tokenSecretName: edge-api-token
+  createSecret: true
+  token: dev-token
 
 dags:
   path: /opt/airflow/dags
@@ -45,3 +47,5 @@ airflow:
   config: |
     [core]
     load_examples = False
+    [api_auth]
+    jwt_secret = dev-jwt-secret
