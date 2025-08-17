@@ -18,7 +18,7 @@ spec:
         imagePullPolicy: {{ .Values.webserver.pullPolicy }}
         env:
         - name: AIRFLOW__CORE__EXECUTOR
-          value: edge_executor.EdgeExecutor
+          value: airflow.providers.edge3.executors.EdgeExecutor
         - name: AIRFLOW__API__EDGE__ENABLED
           value: {{ .Values.edgeApi.enabled | quote }}
         - name: EDGE_API_TOKEN

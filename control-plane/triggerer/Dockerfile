@@ -16,8 +16,9 @@ WORKDIR ${AIRFLOW_HOME}
 
 RUN pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}"
 
+RUN pip install --no-cache-dir "apache-airflow-providers-edge3"
+
 COPY airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
-COPY edge_executor.py ${AIRFLOW_HOME}/edge_executor.py
 
 COPY scripts/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
