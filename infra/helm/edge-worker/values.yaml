@@ -1,0 +1,20 @@
+mode: deployment  # deployment or daemonset
+replicaCount: 1
+image:
+  repository: airbridge/edge-worker
+  tag: latest
+  pullPolicy: IfNotPresent
+queue: default
+controlPlane:
+  url: https://control-plane.example.com
+  tokenSecret:
+    name: edge-worker-token
+    key: token
+resources: {}
+metrics:
+  enabled: false
+  port: 9102
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+    additionalLabels: {}

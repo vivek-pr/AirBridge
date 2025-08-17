@@ -1,0 +1,78 @@
+{{- if eq (lower .Values.mode) "daemonset" }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "edge-worker.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "edge-worker.fullname" . }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "edge-worker.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "edge-worker.fullname" . }}
+    spec:
+      containers:
+        - name: edge-worker
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bootstrap-edge.sh"]
+          args:
+            - "--queue"
+            - {{ .Values.queue | quote }}
+            {{- if .Values.metrics.enabled }}
+            - "--metrics-port"
+            - {{ .Values.metrics.port | quote }}
+            {{- end }}
+          env:
+            - name: CONTROL_PLANE_URL
+              value: {{ .Values.controlPlane.url | quote }}
+            - name: CONTROL_PLANE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.controlPlane.tokenSecret.name }}
+                  key: {{ .Values.controlPlane.tokenSecret.key }}
+          resources:
+{{- toYaml .Values.resources | nindent 12 }}
+{{- else }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "edge-worker.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "edge-worker.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "edge-worker.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "edge-worker.fullname" . }}
+    spec:
+      containers:
+        - name: edge-worker
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bootstrap-edge.sh"]
+          args:
+            - "--queue"
+            - {{ .Values.queue | quote }}
+            {{- if .Values.metrics.enabled }}
+            - "--metrics-port"
+            - {{ .Values.metrics.port | quote }}
+            {{- end }}
+          env:
+            - name: CONTROL_PLANE_URL
+              value: {{ .Values.controlPlane.url | quote }}
+            - name: CONTROL_PLANE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.controlPlane.tokenSecret.name }}
+                  key: {{ .Values.controlPlane.tokenSecret.key }}
+          resources:
+{{- toYaml .Values.resources | nindent 12 }}
+{{- end }}
