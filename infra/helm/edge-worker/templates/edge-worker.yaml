@@ -29,11 +29,17 @@ spec:
           env:
             - name: CONTROL_PLANE_URL
               value: {{ .Values.controlPlane.url | quote }}
+{{- if .Values.controlPlane.tokenSecret.name }}
             - name: CONTROL_PLANE_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.controlPlane.tokenSecret.name }}
                   key: {{ .Values.controlPlane.tokenSecret.key }}
+{{- end }}
+{{- if .Values.controlPlane.tokenSecretId }}
+            - name: CONTROL_PLANE_TOKEN_ID
+              value: {{ .Values.controlPlane.tokenSecretId | quote }}
+{{- end }}
           resources:
 {{- toYaml .Values.resources | nindent 12 }}
 {{- else }}
@@ -68,11 +74,17 @@ spec:
           env:
             - name: CONTROL_PLANE_URL
               value: {{ .Values.controlPlane.url | quote }}
+{{- if .Values.controlPlane.tokenSecret.name }}
             - name: CONTROL_PLANE_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.controlPlane.tokenSecret.name }}
                   key: {{ .Values.controlPlane.tokenSecret.key }}
+{{- end }}
+{{- if .Values.controlPlane.tokenSecretId }}
+            - name: CONTROL_PLANE_TOKEN_ID
+              value: {{ .Values.controlPlane.tokenSecretId | quote }}
+{{- end }}
           resources:
 {{- toYaml .Values.resources | nindent 12 }}
 {{- end }}

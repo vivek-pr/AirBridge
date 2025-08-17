@@ -5,7 +5,7 @@ Install the AirBridge edge worker on a customer Kubernetes cluster using the pro
 ## Prerequisites
 - Kubernetes cluster with outbound HTTPS access to the control-plane API (port 443). Workers may sit behind NAT or egress-only firewalls.
 - No inbound firewall rules are required; the worker initiates all connections.
-- Secret containing a control plane token
+- Control plane token stored in AWS Secrets Manager
 - Helm 3 installed
 
 ## Installation
@@ -14,8 +14,7 @@ Install the AirBridge edge worker on a customer Kubernetes cluster using the pro
 helm install my-worker infra/helm/edge-worker \
   --set queue=my-queue \
   --set controlPlane.url=https://cp.example.com \
-  --set controlPlane.tokenSecret.name=edge-token \
-  --set controlPlane.tokenSecret.key=token
+  --set controlPlane.tokenSecretId=edge-token-id
 ```
 
 The `queue` value binds the worker to a specific execution queue. Update the `controlPlane` settings to match your environment.
