@@ -1,4 +1,4 @@
-.PHONY: build-webserver build-scheduler build-triggerer build-control-plane kind-up kind-down
+.PHONY: build-webserver build-scheduler build-triggerer build-control-plane build-edge-worker kind-up kind-down
 
 KIND_CLUSTER_NAME ?= airbridge
 HELM_RELEASE ?= airbridge-control-plane
@@ -16,6 +16,9 @@ build-triggerer:
 	docker build -t airbridge-triggerer:3.0.4 -f control-plane/triggerer/Dockerfile control-plane
 
 build-control-plane: build-webserver build-scheduler build-triggerer
+
+build-edge-worker:
+	docker build -t airbridge-edge-worker:3.0.4 -f data-plane/worker/Dockerfile data-plane
 
 kind-up: build-control-plane
 	kind create cluster --name $(KIND_CLUSTER_NAME)
