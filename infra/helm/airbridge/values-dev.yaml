@@ -50,6 +50,13 @@ dags:
   gitSync:
     enabled: false
 
+dagSync:
+  enabled: false
+  bucket: ""
+  prefix: ""
+  schedule: "*/1 * * * *"
+  image: amazon/aws-cli:2.13.5
+
 airflow:
   executor: airflow.providers.edge3.executors.EdgeExecutor
   config: |

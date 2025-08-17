@@ -133,3 +133,10 @@ dags:
   # If you prefer pulling DAGs from git, enable this instead of (or in addition to) manual uploads.
   gitSync:
     enabled: false
+
+dagSync:
+  enabled: false
+  bucket: ""
+  prefix: ""
+  schedule: "*/1 * * * *"
+  image: amazon/aws-cli:2.13.5

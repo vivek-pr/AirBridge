@@ -1,0 +1,36 @@
+{{- if .Values.dagSync.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "airbridge.fullname" . }}-dag-sync
+spec:
+  schedule: {{ .Values.dagSync.schedule | quote }}
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: dag-sync
+            image: {{ .Values.dagSync.image }}
+            command: ["/bin/sh","-c"]
+            args:
+            - |
+              n=0
+              until aws s3 sync s3://{{ .Values.dagSync.bucket }}{{ if .Values.dagSync.prefix }}/{{ .Values.dagSync.prefix }}{{ end }} {{ .Values.dags.path }}; do
+                n=$((n+1))
+                sleep $((2**n))
+                if [ $n -ge 5 ]; then
+                  exit 1
+                fi
+              done
+            volumeMounts:
+            - name: dags
+              mountPath: {{ .Values.dags.path }}
+          volumes:
+          - name: dags
+            persistentVolumeClaim:
+              claimName: {{ include "airbridge.fullname" . }}-dags
+{{- end }}

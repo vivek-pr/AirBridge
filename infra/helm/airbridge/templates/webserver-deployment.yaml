@@ -44,7 +44,16 @@ spec:
         - name: airflow-config
           mountPath: /opt/airflow/airflow.cfg
           subPath: airflow.cfg
+{{- if .Values.dags.persistence.enabled }}
+        - name: dags
+          mountPath: {{ .Values.dags.path }}
+{{- end }}
       volumes:
       - name: airflow-config
         configMap:
           name: {{ include "airbridge.fullname" . }}-config
+{{- if .Values.dags.persistence.enabled }}
+      - name: dags
+        persistentVolumeClaim:
+          claimName: {{ include "airbridge.fullname" . }}-dags
+{{- end }}
