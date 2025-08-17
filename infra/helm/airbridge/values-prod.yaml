@@ -22,3 +22,6 @@ ingress:
   tls:
     enabled: true
     secretName: prod-cert
+
+dagSync:
+  enabled: false
