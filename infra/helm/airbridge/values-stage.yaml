@@ -1,0 +1,10 @@
+webserver:
+  replicas: 2
+  service:
+    type: LoadBalancer
+scheduler:
+  replicas: 2
+triggerer:
+  replicas: 2
+flower:
+  enabled: false

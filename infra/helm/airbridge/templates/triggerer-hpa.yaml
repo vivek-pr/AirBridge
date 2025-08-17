@@ -1,0 +1,15 @@
+{{- if .Values.triggerer.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "airbridge.fullname" . }}-triggerer
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "airbridge.fullname" . }}-triggerer
+  minReplicas: {{ .Values.triggerer.hpa.minReplicas }}
+  maxReplicas: {{ .Values.triggerer.hpa.maxReplicas }}
+  metrics:
+{{- toYaml .Values.triggerer.hpa.metrics | nindent 4 }}
+{{- end }}

@@ -1,0 +1,15 @@
+{{- if .Values.scheduler.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "airbridge.fullname" . }}-scheduler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "airbridge.fullname" . }}-scheduler
+  minReplicas: {{ .Values.scheduler.hpa.minReplicas }}
+  maxReplicas: {{ .Values.scheduler.hpa.maxReplicas }}
+  metrics:
+{{- toYaml .Values.scheduler.hpa.metrics | nindent 4 }}
+{{- end }}
