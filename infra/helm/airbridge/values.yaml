@@ -92,6 +92,8 @@ airflow:
   config: |
     [core]
     load_examples = False
+    [api_auth]
+    jwt_secret = change_me
 
 # DAG volume and git sync configurations are unchanged
 # from previous chart versions.
