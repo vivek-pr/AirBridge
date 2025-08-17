@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: edge-dag-sync
+  namespace: airbridge-edge
+spec:
+  schedule: "*/1 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          serviceAccountName: edge-worker
+          restartPolicy: OnFailure
+          containers:
+          - name: dag-sync
+            image: amazon/aws-cli:2.13.5
+            env:
+            - name: DAG_BUCKET
+              value: my-dag-bucket
+            - name: DAGS_FOLDER
+              value: /opt/airflow/dags
+            command: ["/bin/sh","-c"]
+            args:
+            - |
+              n=0
+              until aws s3 sync --checksum --delete s3://$DAG_BUCKET $DAGS_FOLDER; do
+                n=$((n+1))
+                sleep $((2**n))
+                if [ $n -ge 5 ]; then
+                  exit 1
+                fi
+              done
+            volumeMounts:
+            - name: dags
+              mountPath: /opt/airflow/dags
+          volumes:
+          - name: dags
+            persistentVolumeClaim:
+              claimName: edge-dags
