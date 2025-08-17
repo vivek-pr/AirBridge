@@ -35,7 +35,8 @@ edgeApi:
 ingress:
   enabled: true
   controller: nginx
-  host: airbridge.dev.local
+  host: airbridge.localhost
+  healthCheckPath: /
   tls:
     enabled: false
 
