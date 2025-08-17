@@ -6,6 +6,7 @@ Key settings include:
 - `[core] executor = edge_executor.EdgeExecutor`
 - Edge API enabled so edge workers can communicate with the control plane.
 - Token based authentication for the Edge API; tokens are supplied via environment variables.
+- Remote task logs written to S3 under `s3://<project>-logs/logs` with local logs deleted after upload.
 
 ## Enabling the Edge API
 
