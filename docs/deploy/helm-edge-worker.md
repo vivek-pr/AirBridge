@@ -3,7 +3,8 @@
 Install the AirBridge edge worker on a customer Kubernetes cluster using the provided Helm chart.
 
 ## Prerequisites
-- Kubernetes cluster with network access to the control plane
+- Kubernetes cluster with outbound HTTPS access to the control-plane API (port 443). Workers may sit behind NAT or egress-only firewalls.
+- No inbound firewall rules are required; the worker initiates all connections.
 - Secret containing a control plane token
 - Helm 3 installed
 
@@ -40,6 +41,10 @@ A `ServiceMonitor` can be created for scraping by setting:
 ```bash
 --set metrics.enabled=true --set metrics.serviceMonitor.enabled=true
 ```
+
+## Network Validation
+
+To validate operation behind strict firewalls, deploy the worker with all inbound rules blocked. The pod should still register and heartbeat with the control plane because it only requires outbound TLS connections. If metrics are enabled, open the metrics port to allow scraping; otherwise no inbound ports are needed.
 
 ## Tenant Values Example
 
