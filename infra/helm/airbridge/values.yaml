@@ -2,21 +2,99 @@ webserver:
   image: airbridge-webserver
   tag: "3.0.4"
   pullPolicy: IfNotPresent
+  replicas: 1
   service:
     port: 8080
+    type: ClusterIP
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+  pdb:
+    enabled: false
+    minAvailable: 1
 scheduler:
   image: airbridge-scheduler
   tag: "3.0.4"
   pullPolicy: IfNotPresent
+  replicas: 1
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+  pdb:
+    enabled: false
+    minAvailable: 1
 triggerer:
   image: airbridge-triggerer
   tag: "3.0.4"
   pullPolicy: IfNotPresent
-
+  replicas: 1
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+  pdb:
+    enabled: false
+    minAvailable: 1
+flower:
+  enabled: false
+  image: apache/airflow
+  tag: "2.7.1"
+  pullPolicy: IfNotPresent
+  replicas: 1
+  service:
+    port: 5555
+    type: ClusterIP
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+  pdb:
+    enabled: false
+    minAvailable: 1
 edgeApi:
   enabled: true
   tokenSecretName: edge-api-token
+  createSecret: false
+  token: ""
 
+airflow:
+  executor: airflow.providers.edge3.executors.EdgeExecutor
+  config: |
+    [core]
+    load_examples = False
+
+# DAG volume and git sync configurations are unchanged
+# from previous chart versions.
 dags:
   path: /opt/airflow/dags
   persistence:
@@ -27,9 +105,9 @@ dags:
     #  - EKS:  efs-sc
     #  - AKS:  azurefile-csi
     #  - GKE:  filestore-csi
-    storageClassName: standard 
+    storageClassName: standard
     accessMode: ReadWriteMany   # If your class only supports RWO, change to ReadWriteOnce
 
   # If you prefer pulling DAGs from git, enable this instead of (or in addition to) manual uploads.
   gitSync:
-    enabled: false   
+    enabled: false

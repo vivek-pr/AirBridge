@@ -1,0 +1,15 @@
+{{- if and .Values.flower.enabled .Values.flower.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "airbridge.fullname" . }}-flower
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "airbridge.fullname" . }}-flower
+  minReplicas: {{ .Values.flower.hpa.minReplicas }}
+  maxReplicas: {{ .Values.flower.hpa.maxReplicas }}
+  metrics:
+{{- toYaml .Values.flower.hpa.metrics | nindent 4 }}
+{{- end }}
