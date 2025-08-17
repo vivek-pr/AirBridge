@@ -3,7 +3,7 @@
 The control plane ships with an Airflow configuration tailored for edge execution.
 Key settings include:
 
-- `[core] executor = EdgeExecutor`
+- `[core] executor = edge_executor.EdgeExecutor`
 - Edge API enabled so edge workers can communicate with the control plane.
 - Token based authentication for the Edge API; tokens are supplied via environment variables.
 
