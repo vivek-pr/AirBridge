@@ -21,11 +21,17 @@ spec:
           value: {{ .Values.airflow.executor | quote }}
         - name: AIRFLOW__API__EDGE__ENABLED
           value: {{ .Values.edgeApi.enabled | quote }}
+{{- if .Values.edgeApi.tokenSecretName }}
         - name: EDGE_API_TOKEN
           valueFrom:
             secretKeyRef:
               name: {{ .Values.edgeApi.tokenSecretName }}
               key: token
+{{- end }}
+{{- if .Values.edgeApi.tokenSecretId }}
+        - name: EDGE_API_TOKEN_ID
+          value: {{ .Values.edgeApi.tokenSecretId | quote }}
+{{- end }}
         ports:
         - containerPort: {{ .Values.webserver.service.port }}
         livenessProbe:

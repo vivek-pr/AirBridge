@@ -5,20 +5,18 @@ Key settings include:
 
 - `[core] executor = edge_executor.EdgeExecutor`
 - Edge API enabled so edge workers can communicate with the control plane.
-- Token based authentication for the Edge API; tokens are supplied via environment variables.
+- Token based authentication for the Edge API; tokens are sourced from AWS Secrets Manager and injected as environment variables.
 - Remote task logs written to S3 under `s3://<project>-logs/logs` with local logs deleted after upload.
 - Requires the `apache-airflow-providers-amazon` package for S3 logging support.
 
 ## Enabling the Edge API
 
-1. Create a Kubernetes secret containing the token:
-   ```bash
-   kubectl create secret generic edge-api-token --from-literal=token=<token>
-   ```
-2. Set `.Values.edgeApi.enabled` to `true` and provide the secret name via
-   `.Values.edgeApi.tokenSecretName` in the Helm chart values.
-3. The webserver deployment reads the token from the secret and exposes it to
-   Airflow via the `EDGE_API_TOKEN` environment variable.
+1. Store the token in AWS Secrets Manager and note the secret ID.
+2. Set `.Values.edgeApi.enabled` to `true` and provide the secret ID via
+   `.Values.edgeApi.tokenSecretId` in the Helm chart values.
+3. The webserver deployment receives the secret ID as `EDGE_API_TOKEN_ID` and
+   `entrypoint.sh` fetches the token at startup, exposing it to Airflow through
+   the `EDGE_API_TOKEN` environment variable.
 
 With these settings the scheduler runs using the `EdgeExecutor` and the webserver
 exposes the authenticated Edge API.

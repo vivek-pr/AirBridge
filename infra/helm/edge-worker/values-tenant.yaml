@@ -5,6 +5,7 @@ controlPlane:
   tokenSecret:
     name: tenant-a-edge-token
     key: token
+  tokenSecretId: ""
 metrics:
   enabled: true
   port: 9102

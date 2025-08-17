@@ -84,6 +84,7 @@ flower:
 edgeApi:
   enabled: true
   tokenSecretName: edge-api-token
+  tokenSecretId: ""
   createSecret: false
   token: ""
 
@@ -118,7 +119,7 @@ airflow:
     remote_base_log_folder = s3://airbridge-logs/logs
     delete_local_logs = True
     [api_auth]
-    jwt_secret = change_me
+    jwt_secret = ${JWT_SECRET}
 
 # DAG volume and git sync configurations are unchanged
 # from previous chart versions.
