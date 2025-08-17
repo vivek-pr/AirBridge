@@ -16,3 +16,6 @@ ingress:
   tls:
     enabled: true
     secretName: stage-cert
+
+dagSync:
+  enabled: false

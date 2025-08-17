@@ -1,0 +1,13 @@
+{{- if .Values.dags.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "airbridge.fullname" . }}-dags
+spec:
+  accessModes:
+    - {{ .Values.dags.persistence.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.dags.persistence.size }}
+  storageClassName: {{ .Values.dags.persistence.storageClassName }}
+{{- end }}
