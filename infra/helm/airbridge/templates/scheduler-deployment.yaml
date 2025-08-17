@@ -18,4 +18,4 @@ spec:
         imagePullPolicy: {{ .Values.scheduler.pullPolicy }}
         env:
         - name: AIRFLOW__CORE__EXECUTOR
-          value: EdgeExecutor
+          value: edge_executor.EdgeExecutor
