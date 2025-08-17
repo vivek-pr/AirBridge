@@ -29,8 +29,9 @@ flower:
 edgeApi:
   enabled: true
   tokenSecretName: edge-api-token
-  createSecret: true
-  token: dev-token
+  tokenSecretId: ""
+  createSecret: false
+  token: ""
 
 ingress:
   enabled: true
@@ -72,4 +73,4 @@ airflow:
     remote_base_log_folder = s3://airbridge-logs/logs
     delete_local_logs = True
     [api_auth]
-    jwt_secret = dev-jwt-secret
+    jwt_secret = ${JWT_SECRET}

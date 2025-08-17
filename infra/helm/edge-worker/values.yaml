@@ -10,6 +10,7 @@ controlPlane:
   tokenSecret:
     name: edge-worker-token
     key: token
+  tokenSecretId: ""
 resources: {}
 metrics:
   enabled: false
