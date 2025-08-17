@@ -14,6 +14,14 @@ make build-control-plane
 
 Each image runs an entrypoint that performs `airflow db migrate` before starting the service. The CI workflow builds these images and verifies that the Airflow CLI is available to prevent regressions.
 
+A minimal edge-worker image is also provided:
+
+```
+make build-edge-worker
+```
+
+The worker runs as a non-root user, accepts configuration via environment variables (including `CONTROL_PLANE_TOKEN` or `CONTROL_PLANE_TOKEN_FILE` for token injection), and ships with a `diag` script to test connectivity to the control-plane API.
+
 ## Edge sample DAG
 
 An example DAG demonstrating the **EdgeExecutor** is provided in
