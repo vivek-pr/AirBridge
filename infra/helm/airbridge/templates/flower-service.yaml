@@ -1,0 +1,13 @@
+{{- if .Values.flower.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "airbridge.fullname" . }}-flower
+spec:
+  type: {{ .Values.flower.service.type | default "ClusterIP" }}
+  selector:
+    app: {{ include "airbridge.fullname" . }}-flower
+  ports:
+  - port: {{ .Values.flower.service.port }}
+    targetPort: {{ .Values.flower.service.port }}
+{{- end }}

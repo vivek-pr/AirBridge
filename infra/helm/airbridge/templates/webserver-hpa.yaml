@@ -1,0 +1,15 @@
+{{- if .Values.webserver.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "airbridge.fullname" . }}-webserver
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "airbridge.fullname" . }}-webserver
+  minReplicas: {{ .Values.webserver.hpa.minReplicas }}
+  maxReplicas: {{ .Values.webserver.hpa.maxReplicas }}
+  metrics:
+{{- toYaml .Values.webserver.hpa.metrics | nindent 4 }}
+{{- end }}

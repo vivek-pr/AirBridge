@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "airbridge.fullname" . }}-scheduler
 spec:
-  replicas: 1
+  replicas: {{ .Values.scheduler.replicas }}
   selector:
     matchLabels:
       app: {{ include "airbridge.fullname" . }}-scheduler
@@ -18,4 +18,29 @@ spec:
         imagePullPolicy: {{ .Values.scheduler.pullPolicy }}
         env:
         - name: AIRFLOW__CORE__EXECUTOR
-          value: airflow.providers.edge3.executors.EdgeExecutor
+          value: {{ .Values.airflow.executor | quote }}
+        - name: AIRFLOW__API__EDGE__ENABLED
+          value: {{ .Values.edgeApi.enabled | quote }}
+        - name: EDGE_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.edgeApi.tokenSecretName }}
+              key: token
+        livenessProbe:
+          exec:
+            command: ["bash", "-c", "airflow jobs check scheduler"]
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command: ["bash", "-c", "airflow jobs check scheduler"]
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        volumeMounts:
+        - name: airflow-config
+          mountPath: /opt/airflow/airflow.cfg
+          subPath: airflow.cfg
+      volumes:
+      - name: airflow-config
+        configMap:
+          name: {{ include "airbridge.fullname" . }}-config

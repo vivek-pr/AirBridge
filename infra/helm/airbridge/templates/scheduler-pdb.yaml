@@ -1,0 +1,11 @@
+{{- if .Values.scheduler.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "airbridge.fullname" . }}-scheduler
+spec:
+  minAvailable: {{ .Values.scheduler.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      app: {{ include "airbridge.fullname" . }}-scheduler
+{{- end }}

@@ -3,6 +3,7 @@ webserver:
   image: airbridge-webserver
   tag: "3.0.4"
   pullPolicy: IfNotPresent
+  replicas: 1
   service:
     port: 8080
     type: ClusterIP
@@ -10,11 +11,21 @@ scheduler:
   image: airbridge-scheduler
   tag: "3.0.4"
   pullPolicy: IfNotPresent
+  replicas: 1
 triggerer:
   image: airbridge-triggerer
   tag: "3.0.4"
   pullPolicy: IfNotPresent
-
+  replicas: 1
+flower:
+  enabled: true
+  image: apache/airflow
+  tag: "2.7.1"
+  pullPolicy: IfNotPresent
+  replicas: 1
+  service:
+    port: 5555
+    type: ClusterIP
 edgeApi:
   enabled: true
   tokenSecretName: edge-api-token
@@ -24,14 +35,13 @@ dags:
   persistence:
     enabled: true
     size: 5Gi
-    # Use an RWX class if multiple pods may run on different nodes.
-    # Common examples:
-    #  - EKS:  efs-sc
-    #  - AKS:  azurefile-csi
-    #  - GKE:  filestore-csi
-    storageClassName: standard 
-    accessMode: ReadWriteMany   # If your class only supports RWO, change to ReadWriteOnce
-
-  # If you prefer pulling DAGs from git, enable this instead of (or in addition to) manual uploads.
+    storageClassName: standard
+    accessMode: ReadWriteMany
   gitSync:
-    enabled: false     
+    enabled: false
+
+airflow:
+  executor: airflow.providers.edge3.executors.EdgeExecutor
+  config: |
+    [core]
+    load_examples = False

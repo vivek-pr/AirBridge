@@ -1,21 +1,23 @@
+{{- if .Values.flower.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "airbridge.fullname" . }}-webserver
+  name: {{ include "airbridge.fullname" . }}-flower
 spec:
-  replicas: {{ .Values.webserver.replicas }}
+  replicas: {{ .Values.flower.replicas }}
   selector:
     matchLabels:
-      app: {{ include "airbridge.fullname" . }}-webserver
+      app: {{ include "airbridge.fullname" . }}-flower
   template:
     metadata:
       labels:
-        app: {{ include "airbridge.fullname" . }}-webserver
+        app: {{ include "airbridge.fullname" . }}-flower
     spec:
       containers:
-      - name: webserver
-        image: "{{ .Values.webserver.image }}:{{ .Values.webserver.tag }}"
-        imagePullPolicy: {{ .Values.webserver.pullPolicy }}
+      - name: flower
+        image: "{{ .Values.flower.image }}:{{ .Values.flower.tag }}"
+        imagePullPolicy: {{ .Values.flower.pullPolicy }}
+        args: ["flower"]
         env:
         - name: AIRFLOW__CORE__EXECUTOR
           value: {{ .Values.airflow.executor | quote }}
@@ -27,17 +29,17 @@ spec:
               name: {{ .Values.edgeApi.tokenSecretName }}
               key: token
         ports:
-        - containerPort: {{ .Values.webserver.service.port }}
+        - containerPort: {{ .Values.flower.service.port }}
         livenessProbe:
           httpGet:
             path: /
-            port: {{ .Values.webserver.service.port }}
+            port: {{ .Values.flower.service.port }}
           initialDelaySeconds: 10
           periodSeconds: 30
         readinessProbe:
           httpGet:
             path: /
-            port: {{ .Values.webserver.service.port }}
+            port: {{ .Values.flower.service.port }}
           initialDelaySeconds: 5
           periodSeconds: 10
         volumeMounts:
@@ -48,3 +50,4 @@ spec:
       - name: airflow-config
         configMap:
           name: {{ include "airbridge.fullname" . }}-config
+{{- end }}

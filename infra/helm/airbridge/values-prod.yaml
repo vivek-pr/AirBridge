@@ -1,0 +1,16 @@
+webserver:
+  replicas: 3
+  service:
+    type: LoadBalancer
+  hpa:
+    enabled: true
+scheduler:
+  replicas: 3
+  hpa:
+    enabled: true
+triggerer:
+  replicas: 3
+  hpa:
+    enabled: true
+flower:
+  enabled: false
