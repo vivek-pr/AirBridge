@@ -14,9 +14,11 @@ RUN set -ex \
 USER airflow
 WORKDIR ${AIRFLOW_HOME}
 
-RUN pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}"
-
-RUN pip install --no-cache-dir "apache-airflow-providers-edge3"
+# Install Airflow and required providers
+RUN pip install --no-cache-dir \
+    "apache-airflow==${AIRFLOW_VERSION}" \
+    "apache-airflow-providers-amazon" \
+    "apache-airflow-providers-edge3"
 
 COPY airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
 

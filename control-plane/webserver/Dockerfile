@@ -14,9 +14,12 @@ RUN set -ex \
 USER airflow
 WORKDIR ${AIRFLOW_HOME}
 
-# Install Airflow and the edge3 provider with matching constraints
-RUN pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}" \
-    && pip install --no-cache-dir "apache-airflow-providers-edge3" --constraint "${CONSTRAINT_URL}"
+# Install Airflow and required providers with matching constraints
+RUN pip install --no-cache-dir \
+    "apache-airflow==${AIRFLOW_VERSION}" \
+    "apache-airflow-providers-amazon" \
+    "apache-airflow-providers-edge3" \
+    --constraint "${CONSTRAINT_URL}"
 
 # Copy your cfg with [core] executor = EdgeExecutor
 COPY airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
