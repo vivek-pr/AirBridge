@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registry-creds
+  namespace: airbridge-system
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registry-creds
+  namespace: airbridge-control
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registry-creds
+  namespace: airbridge-edge
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K

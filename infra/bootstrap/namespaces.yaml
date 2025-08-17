@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: airbridge-system
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/enforce-version: "latest"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: airbridge-control
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/enforce-version: "latest"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: airbridge-edge
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/enforce-version: "latest"
