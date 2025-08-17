@@ -3,6 +3,9 @@
 KIND_CLUSTER_NAME ?= airbridge
 HELM_RELEASE ?= airbridge-control-plane
 
+ENV ?= dev
+HELM_VALUES ?= infra/helm/airbridge/values-$(ENV).yaml
+
 build-webserver:
 	docker build -t airbridge-webserver:3.0.4 -f control-plane/webserver/Dockerfile control-plane
 
@@ -19,7 +22,7 @@ kind-up: build-control-plane
 	kind load docker-image airbridge-webserver:3.0.4 --name $(KIND_CLUSTER_NAME)
 	kind load docker-image airbridge-scheduler:3.0.4 --name $(KIND_CLUSTER_NAME)
 	kind load docker-image airbridge-triggerer:3.0.4 --name $(KIND_CLUSTER_NAME)
-	helm upgrade --install $(HELM_RELEASE) infra/helm/airbridge -f infra/helm/airbridge/values-dev.yaml
+	helm upgrade --install $(HELM_RELEASE) infra/helm/airbridge -f $(HELM_VALUES)
 
 kind-down:
 	-helm uninstall $(HELM_RELEASE)
