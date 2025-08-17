@@ -3,7 +3,7 @@
 Common issues and diagnostic steps when bootstrapping an edge worker.
 
 ## Cannot reach control plane
-- Ensure `CONTROL_PLANE_URL` is correct and accessible.
+- Ensure `CONTROL_PLANE_URL` is correct, uses `https://`, and outbound port 443 is permitted through any firewall or proxy.
 - Test connectivity:
   ```bash
   curl -f "$CONTROL_PLANE_URL/health"
@@ -29,3 +29,6 @@ Common issues and diagnostic steps when bootstrapping an edge worker.
   ```bash
   curl -f "http://localhost:<port>/metrics"
   ```
+
+## Firewall checks
+- The edge worker opens no inbound ports by default. If connectivity issues persist, confirm outbound HTTPS (port 443) to the control plane is allowed and that no inbound rules are required unless metrics are enabled.

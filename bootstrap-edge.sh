@@ -12,7 +12,7 @@ Usage: $0 --queue <name> [--metrics-port <port>]
   --metrics-port  Port to expose Prometheus metrics on (optional)
 
 Environment variables:
-  CONTROL_PLANE_URL  Base URL for the control plane (default: https://localhost:8080)
+  CONTROL_PLANE_URL  Base URL for the control plane (must be https, default: https://localhost:8080)
 USAGE
   exit 1
 }
@@ -43,18 +43,22 @@ done
 [ -n "$queue" ] || usage
 
 CONTROL_PLANE_URL="${CONTROL_PLANE_URL:-https://localhost:8080}"
+if [[ "$CONTROL_PLANE_URL" != https://* ]]; then
+  echo "CONTROL_PLANE_URL must use https" >&2
+  exit 1
+fi
 AIRFLOW_HOME="$(mktemp -d)"
 export AIRFLOW_HOME
 
 # Fetch worker configuration and token from control plane
-curl -fsSL "${CONTROL_PLANE_URL}/edge_worker/v1/config?queue=${queue}" -o "${AIRFLOW_HOME}/airflow.cfg"
-CONTROL_PLANE_TOKEN="$(curl -fsSL "${CONTROL_PLANE_URL}/edge_worker/v1/token?queue=${queue}")"
+curl --proto '=https' --tlsv1.2 -fsSL "${CONTROL_PLANE_URL}/edge_worker/v1/config?queue=${queue}" -o "${AIRFLOW_HOME}/airflow.cfg"
+CONTROL_PLANE_TOKEN="$(curl --proto '=https' --tlsv1.2 -fsSL "${CONTROL_PLANE_URL}/edge_worker/v1/token?queue=${queue}")"
 export CONTROL_PLANE_TOKEN
 
 # Validate queue registration
-curl -fsS "${CONTROL_PLANE_URL}/edge_worker/v1/queues/${queue}" >/dev/null
+curl --proto '=https' --tlsv1.2 -fsS "${CONTROL_PLANE_URL}/edge_worker/v1/queues/${queue}" >/dev/null
 # Validate control plane heartbeat
-curl -fsS "${CONTROL_PLANE_URL}/health" >/dev/null
+curl --proto '=https' --tlsv1.2 -fsS "${CONTROL_PLANE_URL}/health" >/dev/null
 
 if [ -n "$metrics_port" ]; then
   export AIRFLOW__PROMETHEUS__METRICS_PORT="$metrics_port"
