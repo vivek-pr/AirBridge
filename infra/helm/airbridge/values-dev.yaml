@@ -32,6 +32,13 @@ edgeApi:
   createSecret: true
   token: dev-token
 
+ingress:
+  enabled: true
+  controller: nginx
+  host: airbridge.dev.local
+  tls:
+    enabled: false
+
 dags:
   path: /opt/airflow/dags
   persistence:

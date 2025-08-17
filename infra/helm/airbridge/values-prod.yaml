@@ -1,7 +1,7 @@
 webserver:
   replicas: 3
   service:
-    type: LoadBalancer
+    type: ClusterIP
   hpa:
     enabled: true
 scheduler:
@@ -14,3 +14,11 @@ triggerer:
     enabled: true
 flower:
   enabled: false
+
+ingress:
+  enabled: true
+  controller: gke
+  host: airbridge.example.com
+  tls:
+    enabled: true
+    secretName: prod-cert
