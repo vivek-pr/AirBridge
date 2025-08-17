@@ -1,6 +1,9 @@
 # AirBridge
 Build a control-plane/data-plane Airflow on 3.0.4 using Edge Executor. Control plane hosts web/API, scheduler, triggerer, DB; data planes run lightweight edge workers with outbound-only HTTPS. DAGs and logs are centralized in S3.
 
+The Helm chart optionally synchronizes DAGs from S3 to the cluster using either a
+`CronJob` or a sidecar container controlled by `.Values.dagSync` settings.
+
 ## Building and Testing
 
 The control-plane services (webserver, scheduler, and triggerer) are built as Docker images. Use the Makefile to build all three:

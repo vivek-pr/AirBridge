@@ -19,3 +19,11 @@ ingress:
 
 dagSync:
   enabled: false
+  bucket: ""
+  prefix: ""
+  image: amazon/aws-cli:2.13.5
+  mode: cronjob
+  schedule: "*/1 * * * *"
+  intervalSeconds: 60
+  backoffLimit: 3
+  retries: 5

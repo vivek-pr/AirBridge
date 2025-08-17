@@ -48,6 +48,9 @@ spec:
         - name: dags
           mountPath: {{ .Values.dags.path }}
 {{- end }}
+{{- if and .Values.dagSync.enabled (eq .Values.dagSync.mode "sidecar") }}
+{{ include "airbridge.dagSync.container" . | indent 6 }}
+{{- end }}
       volumes:
       - name: airflow-config
         configMap:
