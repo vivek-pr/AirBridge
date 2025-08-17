@@ -39,3 +39,26 @@ can be provided in `ingress.waf.securityPolicy`.
 Expose a health check endpoint with `ingress.healthCheckPath` and ensure your
 monitoring system tracks 4xx and 5xx response rates for early detection of
 problems.
+
+## Synchronizing DAGs from S3
+
+AirBridge can automatically pull DAG files from an S3 bucket either using a
+Kubernetes `CronJob` or a sidecar container deployed alongside the scheduler,
+webserver and triggerer pods.
+
+Enable synchronization by setting `dagSync.enabled` to `true` and specifying the
+S3 `bucket` (and optional `prefix`). Choose between `dagSync.mode` of `cronjob`
+or `sidecar`:
+
+- **CronJob** – runs on the schedule defined by `dagSync.schedule`. Retries are
+  controlled through `dagSync.backoffLimit` and the `retries` value used by the
+  sync script.
+- **Sidecar** – runs continuously with a sleep interval of
+  `dagSync.intervalSeconds` between successful syncs. Consecutive failures follow
+  exponential backoff up to `dagSync.retries` attempts before the container
+  restarts.
+
+The sync container uses the AWS CLI and relies on cloud credentials made
+available to the pod. In cloud environments, configure IAM Roles for Service
+Accounts (IRSA) or an equivalent mechanism so the pod's service account can read
+from the target S3 bucket without embedding static credentials.

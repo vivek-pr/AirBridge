@@ -1,4 +1,4 @@
-{{- if .Values.dagSync.enabled }}
+{{- if and .Values.dagSync.enabled (eq .Values.dagSync.mode "cronjob") }}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -8,7 +8,7 @@ spec:
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
-      backoffLimit: 3
+      backoffLimit: {{ .Values.dagSync.backoffLimit }}
       template:
         spec:
           restartPolicy: OnFailure
@@ -22,7 +22,7 @@ spec:
               until aws s3 sync s3://{{ .Values.dagSync.bucket }}{{ if .Values.dagSync.prefix }}/{{ .Values.dagSync.prefix }}{{ end }} {{ .Values.dags.path }}; do
                 n=$((n+1))
                 sleep $((2**n))
-                if [ $n -ge 5 ]; then
+                if [ $n -ge {{ .Values.dagSync.retries }} ]; then
                   exit 1
                 fi
               done

@@ -143,5 +143,9 @@ dagSync:
   enabled: false
   bucket: ""
   prefix: ""
-  schedule: "*/1 * * * *"
   image: amazon/aws-cli:2.13.5
+  mode: cronjob   # cronjob or sidecar
+  schedule: "*/1 * * * *"
+  intervalSeconds: 60
+  backoffLimit: 3
+  retries: 5
