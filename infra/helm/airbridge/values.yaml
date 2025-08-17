@@ -87,6 +87,26 @@ edgeApi:
   createSecret: false
   token: ""
 
+ingress:
+  enabled: false
+  controller: nginx # or gke
+  host: ""
+  className: ""
+  annotations: {}
+  tls:
+    enabled: false
+    secretName: ""
+    issuer: ""
+    acmCertificateArn: ""
+  ipAllowList: []
+  rateLimit:
+    rps: null
+    burst: null
+  waf:
+    enabled: false
+    securityPolicy: ""
+  healthCheckPath: /healthz
+
 airflow:
   executor: airflow.providers.edge3.executors.EdgeExecutor
   config: |

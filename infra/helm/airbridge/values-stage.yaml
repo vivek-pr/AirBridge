@@ -1,10 +1,18 @@
 webserver:
   replicas: 2
   service:
-    type: LoadBalancer
+    type: ClusterIP
 scheduler:
   replicas: 2
 triggerer:
   replicas: 2
 flower:
   enabled: false
+
+ingress:
+  enabled: true
+  controller: gke
+  host: airbridge.stage.example.com
+  tls:
+    enabled: true
+    secretName: stage-cert

@@ -20,3 +20,20 @@ Key settings include:
 
 With these settings the scheduler runs using the `EdgeExecutor` and the webserver
 exposes the authenticated Edge API.
+
+## Ingress and TLS
+
+The control-plane UI and API can be exposed through a Kubernetes Ingress. Enable
+it by setting `.Values.ingress.enabled` and providing the desired `controller`
+(`nginx` or `gke`) and `host` in your values file. TLS certificates may be
+referenced via a secret, ACM ARN, or cert-manager issuer using the
+`ingress.tls` block.
+
+Optional security features include IP allow lists, basic rate limiting and WAF
+integration. For NGINX, supply ranges in `ingress.ipAllowList` and set
+`ingress.waf.enabled` to activate ModSecurity. On GKE, a Cloud Armor policy name
+can be provided in `ingress.waf.securityPolicy`.
+
+Expose a health check endpoint with `ingress.healthCheckPath` and ensure your
+monitoring system tracks 4xx and 5xx response rates for early detection of
+problems.
