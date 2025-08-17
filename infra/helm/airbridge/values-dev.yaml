@@ -62,5 +62,10 @@ airflow:
   config: |
     [core]
     load_examples = False
+    [logging]
+    remote_logging = True
+    remote_log_conn_id = aws_default
+    remote_base_log_folder = s3://airbridge-logs/logs
+    delete_local_logs = True
     [api_auth]
     jwt_secret = dev-jwt-secret
