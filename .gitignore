@@ -7,5 +7,9 @@ __pycache__/
 *.py[cod]
 .env
 
+# Packaging
+*.egg-info/
+build/
+
 # Others
 .DS_Store
