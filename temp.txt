@@ -1,0 +1,32 @@
+kubectl get secret jwt-secret >/dev/null 2>&1 || \    
+   kubectl create secret generic jwt-secret \    
+   --from-literal=token=1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+
+kubectl get secret edge-api-token >/dev/null 2>&1 || \
+   kubectl create secret generic edge-api-token \
+   --from-literal=token=1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+
+How can I add above 2 command of secret creation in this makefile command
+It is require before copying pod
+
+minikube-up: build-control-plane
+	minikube start -p $(MINIKUBE_PROFILE)
+	minikube image load -p $(MINIKUBE_PROFILE) airbridge-webserver:3.0.4
+	minikube image load -p $(MINIKUBE_PROFILE) airbridge-scheduler:3.0.4
+	minikube image load -p $(MINIKUBE_PROFILE) airbridge-triggerer:3.0.4
+	minikube image load -p $(MINIKUBE_PROFILE) postgres:15
+	helm upgrade --install $(HELM_RELEASE) infra/helm/airbridge -f $(HELM_VALUES)
+
+	# Ensure required secrets exist
+	kubectl --context $(MINIKUBE_PROFILE) get secret jwt-secret >/dev/null 2>&1 || \
+		kubectl --context $(MINIKUBE_PROFILE) create secret generic jwt-secret \
+		--from-literal=token=1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+
+	kubectl --context $(MINIKUBE_PROFILE) get secret edge-api-token >/dev/null 2>&1 || \
+		kubectl --context $(MINIKUBE_PROFILE) create secret generic edge-api-token \
+		--from-literal=token=1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+
+	kubectl --context $(MINIKUBE_PROFILE) wait --for=condition=Ready pod -l app=$(HELM_RELEASE)-postgres --timeout=180s
+	kubectl --context $(MINIKUBE_PROFILE) wait --for=condition=Ready pod -l app=$(HELM_RELEASE)-webserver --timeout=180s
+	WEB_POD=$$(kubectl --context $(MINIKUBE_PROFILE) get pods -l app=$(HELM_RELEASE)-webserver -o jsonpath='{.items[0].metadata.name}') && \
+	kubectl --context $(MINIKUBE_PROFILE) cp control-plane/dags/. $$WEB_POD:/opt/airflow/dags

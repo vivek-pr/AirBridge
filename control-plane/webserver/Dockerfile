@@ -21,6 +21,9 @@ RUN pip install --no-cache-dir \
     "apache-airflow-providers-edge3" \
     --constraint "${CONSTRAINT_URL}"
 
+RUN pip install --no-cache-dir apache-airflow[postgres]==${AIRFLOW_VERSION}
+
+
 # Copy your cfg with [core] executor = EdgeExecutor
 COPY airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
 

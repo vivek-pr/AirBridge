@@ -18,7 +18,7 @@ triggerer:
   pullPolicy: IfNotPresent
   replicas: 1
 flower:
-  enabled: true
+  enabled: false
   image: apache/airflow
   tag: "2.7.1"
   pullPolicy: IfNotPresent
@@ -63,18 +63,18 @@ dagSync:
   retries: 5
 
 airflow:
-  executor: LocalExecutor
-  # executor: airflow.providers.edge3.executors.EdgeExecutor
-  # config: |
-  #   [core]
-  #   load_examples = False
-  #   [logging]
-  #   remote_logging = True
-  #   remote_log_conn_id = aws_default
-  #   remote_base_log_folder = s3://airbridge-logs/logs
-  #   delete_local_logs = True
-  #   [api_auth]
-  #   jwt_secret = ${JWT_SECRET}
+  # executor: LocalExecutor
+  executor: airflow.providers.edge3.executors.EdgeExecutor
+  config: |
+    [core]
+    load_examples = False
+    [logging]
+    remote_logging = True
+    remote_log_conn_id = aws_default
+    remote_base_log_folder = s3://airbridge-logs/logs
+    delete_local_logs = True
+    [api_auth]
+    jwt_secret = ${JWT_SECRET}
 
 postgres:
   image: postgres

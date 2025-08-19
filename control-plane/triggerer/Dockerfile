@@ -20,6 +20,8 @@ RUN pip install --no-cache-dir \
     "apache-airflow-providers-amazon" \
     "apache-airflow-providers-edge3"
 
+RUN pip install --no-cache-dir apache-airflow[postgres]==${AIRFLOW_VERSION}
+
 COPY airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
 
 COPY scripts/entrypoint.sh /entrypoint.sh

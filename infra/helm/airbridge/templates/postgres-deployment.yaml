@@ -24,7 +24,7 @@ spec:
         - name: POSTGRES_DB
           value: {{ .Values.postgres.db | quote }}
         ports:
-        - containerPort: {{ .Values.postgres.port }}
+        - containerPort: {{ int .Values.postgres.port }}
         volumeMounts:
         - name: data
           mountPath: /var/lib/postgresql/data
