@@ -1,27 +1,27 @@
 # Local Kubernetes Development
 
 This guide describes how to run the AirBridge control plane on a local Kubernetes
-cluster using [kind](https://kind.sigs.k8s.io/) or Minikube.
+cluster using [Minikube](https://minikube.sigs.k8s.io/docs/start/).
 
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/)
-- [kind](https://kind.sigs.k8s.io/) or [Minikube](https://minikube.sigs.k8s.io/docs/start/)
+- [Minikube](https://minikube.sigs.k8s.io/docs/start/)
 - [Helm](https://helm.sh/)
 
 ## Quickstart
 
 ```bash
-make kind-up
+make minikube-up
 ```
 
-The command above creates a kind cluster, builds the control plane images, loads
-them into the cluster and deploys the Helm chart.
+The command above creates a Minikube cluster, builds the control plane images,
+loads them into the cluster and deploys the Helm chart.
 
 To stop the cluster:
 
 ```bash
-make kind-down
+make minikube-down
 ```
 
 ## Accessing the UI
