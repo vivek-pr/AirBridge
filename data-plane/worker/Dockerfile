@@ -2,8 +2,8 @@ FROM python:3.11-slim
 
 ENV AIRFLOW_HOME=/opt/airflow \
     AIRFLOW_VERSION=3.0.4 \
-    PY_VER=3.11 \
-    PATH="${AIRFLOW_HOME}/.local/bin:${PATH}" \
+    PY_VER=3.11
+ENV PATH="${AIRFLOW_HOME}/.local/bin:${PATH}" \
     CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PY_VER}.txt"
 
 # Install curl and create non-root user
