@@ -21,15 +21,20 @@ build-edge-worker:
 	docker build -t airbridge-edge-worker:3.0.4 -f data-plane/worker/Dockerfile data-plane
 
 run-edge-worker: build-edge-worker
-	docker run --rm airbridge-edge-worker:3.0.4
+	# Grab token from K8s secret (if running locally against your minikube control plane)
+	EDGE_API_TOKEN=$$(kubectl get secret edge-api-token -o jsonpath='{.data.token}' | base64 -d) && \
+	docker run --rm \
+		-e CONTROL_PLANE_URL="http://localhost:8080" \
+		-e EDGE_API_TOKEN="$$EDGE_API_TOKEN" \
+		--name edge-worker airbridge-edge-worker:3.0.4
 
 create-secrets:
 	kubectl --context $(MINIKUBE_PROFILE) get secret jwt-secret >/dev/null 2>&1 || \
 		kubectl --context $(MINIKUBE_PROFILE) create secret generic jwt-secret \
-		--from-literal=token=1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+		--from-literal=token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlZGdlLXdvcmtlciIsImlhdCI6MTc1NTYzNTExNywibmJmIjoxNzU1NjM1MTEyLCJleHAiOjE3NTU2Mzg3MTcsImF1ZCI6InVybjphaXJmbG93LmFwYWNoZS5vcmc6dGFzayJ9.X4wUOu26SxckgkmmnytT_BYzYUernXmKw6Vy-cfkTak
 	kubectl --context $(MINIKUBE_PROFILE) get secret edge-api-token >/dev/null 2>&1 || \
 		kubectl --context $(MINIKUBE_PROFILE) create secret generic edge-api-token \
-		--from-literal=token=1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+		--from-literal=token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlZGdlLXdvcmtlciIsImlhdCI6MTc1NTYzNTExNywibmJmIjoxNzU1NjM1MTEyLCJleHAiOjE3NTU2Mzg3MTcsImF1ZCI6InVybjphaXJmbG93LmFwYWNoZS5vcmc6dGFzayJ9.X4wUOu26SxckgkmmnytT_BYzYUernXmKw6Vy-cfkTak
 
 minikube-up: build-control-plane
 	minikube start -p $(MINIKUBE_PROFILE)

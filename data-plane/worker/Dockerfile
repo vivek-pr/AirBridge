@@ -26,6 +26,6 @@ COPY worker/entrypoint.sh /entrypoint.sh
 COPY worker/diag.sh /usr/local/bin/diag
 
 ENTRYPOINT ["/entrypoint.sh", "airflow"]
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl --fail --proto '=https' --tlsv1.2 "${CONTROL_PLANE_URL:-https://localhost:8080}/health" || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl --fail --proto '=http' --tlsv1.2 "${CONTROL_PLANE_URL:-https://localhost:8080}/api/v2/monitor/health" || exit 1
 
 CMD ["edge", "worker"]

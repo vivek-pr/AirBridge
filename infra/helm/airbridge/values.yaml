@@ -119,7 +119,11 @@ airflow:
     remote_base_log_folder = s3://airbridge-logs/logs
     delete_local_logs = True
     [api_auth]
-    jwt_secret = ${JWT_SECRET}
+    backend = airflow.api_fastapi.auth.backend.default.allow_all
+    jwt_secret = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlZGdlLXdvcmtlciIsImlhdCI6MTc1NTYzNTExNywibmJmIjoxNzU1NjM1MTEyLCJleHAiOjE3NTU2Mzg3MTcsImF1ZCI6InVybjphaXJmbG93LmFwYWNoZS5vcmc6dGFzayJ9.X4wUOu26SxckgkmmnytT_BYzYUernXmKw6Vy-cfkTak
+    [edge]
+    api_enabled = True
+    api_url = http://localhost:8080/edge_worker/v1/rpcapi
 
 # DAG volume and git sync configurations are unchanged
 # from previous chart versions.

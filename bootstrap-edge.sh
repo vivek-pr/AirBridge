@@ -51,14 +51,14 @@ AIRFLOW_HOME="$(mktemp -d)"
 export AIRFLOW_HOME
 
 # Fetch worker configuration and token from control plane
-curl --proto '=https' --tlsv1.2 -fsSL "${CONTROL_PLANE_URL}/edge_worker/v1/config?queue=${queue}" -o "${AIRFLOW_HOME}/airflow.cfg"
-CONTROL_PLANE_TOKEN="$(curl --proto '=https' --tlsv1.2 -fsSL "${CONTROL_PLANE_URL}/edge_worker/v1/token?queue=${queue}")"
+curl --proto '=http' --tlsv1.2 -fsSL "${CONTROL_PLANE_URL}/edge_worker/v1/config?queue=${queue}" -o "${AIRFLOW_HOME}/airflow.cfg"
+CONTROL_PLANE_TOKEN="$(curl --proto '=http' --tlsv1.2 -fsSL "${CONTROL_PLANE_URL}/edge_worker/v1/token?queue=${queue}")"
 export CONTROL_PLANE_TOKEN
 
 # Validate queue registration
-curl --proto '=https' --tlsv1.2 -fsS "${CONTROL_PLANE_URL}/edge_worker/v1/queues/${queue}" >/dev/null
+curl --proto '=http' --tlsv1.2 -fsS "${CONTROL_PLANE_URL}/edge_worker/v1/queues/${queue}" >/dev/null
 # Validate control plane heartbeat
-curl --proto '=https' --tlsv1.2 -fsS "${CONTROL_PLANE_URL}/health" >/dev/null
+curl --proto '=http' --tlsv1.2 -fsS "${CONTROL_PLANE_URL}/health" >/dev/null
 
 if [ -n "$metrics_port" ]; then
   export AIRFLOW__PROMETHEUS__METRICS_PORT="$metrics_port"

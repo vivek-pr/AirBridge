@@ -30,5 +30,9 @@ fi
 # Initialize database if needed
 airflow db migrate
 
+export AIRFLOW__EDGE__API_ENABLED=True
+export AIRFLOW__EDGE__API_URL=http://localhost:8080/edge_worker/v1/rpcapi  # http unless you actually enabled TLS
+# If you use JWT in [api_auth] with ${JWT_SECRET}, make sure it’s set:
+export JWT_SECRET=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlZGdlLXdvcmtlciIsImlhdCI6MTc1NTYzNTExNywibmJmIjoxNzU1NjM1MTEyLCJleHAiOjE3NTU2Mzg3MTcsImF1ZCI6InVybjphaXJmbG93LmFwYWNoZS5vcmc6dGFzayJ9.X4wUOu26SxckgkmmnytT_BYzYUernXmKw6Vy-cfkTak
 # Execute the container's main process
 exec "$@"
