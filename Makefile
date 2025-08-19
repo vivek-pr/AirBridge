@@ -1,6 +1,6 @@
-.PHONY: build-webserver build-scheduler build-triggerer build-control-plane build-edge-worker kind-up kind-down
+.PHONY: build-webserver build-scheduler build-triggerer build-control-plane build-edge-worker run-edge-worker minikube-up minikube-down
 
-KIND_CLUSTER_NAME ?= airbridge
+MINIKUBE_PROFILE ?= airbridge
 HELM_RELEASE ?= airbridge-control-plane
 
 ENV ?= dev
@@ -20,13 +20,16 @@ build-control-plane: build-webserver build-scheduler build-triggerer
 build-edge-worker:
 	docker build -t airbridge-edge-worker:3.0.4 -f data-plane/worker/Dockerfile data-plane
 
-kind-up: build-control-plane
-	kind create cluster --name $(KIND_CLUSTER_NAME)
-	kind load docker-image airbridge-webserver:3.0.4 --name $(KIND_CLUSTER_NAME)
-	kind load docker-image airbridge-scheduler:3.0.4 --name $(KIND_CLUSTER_NAME)
-	kind load docker-image airbridge-triggerer:3.0.4 --name $(KIND_CLUSTER_NAME)
+run-edge-worker: build-edge-worker
+	docker run --rm airbridge-edge-worker:3.0.4 --help
+
+minikube-up: build-control-plane
+	minikube start -p $(MINIKUBE_PROFILE)
+	minikube image load -p $(MINIKUBE_PROFILE) airbridge-webserver:3.0.4
+	minikube image load -p $(MINIKUBE_PROFILE) airbridge-scheduler:3.0.4
+	minikube image load -p $(MINIKUBE_PROFILE) airbridge-triggerer:3.0.4
 	helm upgrade --install $(HELM_RELEASE) infra/helm/airbridge -f $(HELM_VALUES)
 
-kind-down:
+minikube-down:
 	-helm uninstall $(HELM_RELEASE)
-	kind delete cluster --name $(KIND_CLUSTER_NAME)
+	minikube delete -p $(MINIKUBE_PROFILE)

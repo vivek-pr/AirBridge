@@ -66,4 +66,4 @@ if [ -n "$metrics_port" ]; then
 fi
 
 # Start the edge worker; replace shell with worker process
-exec airflow edge-worker --queue "$queue"
+exec airflow edge_worker --queue "$queue"
