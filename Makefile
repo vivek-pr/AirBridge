@@ -29,8 +29,12 @@ minikube-up: build-control-plane
 	minikube image load -p $(MINIKUBE_PROFILE) airbridge-scheduler:3.0.4
 	minikube image load -p $(MINIKUBE_PROFILE) airbridge-triggerer:3.0.4
 	helm upgrade --install $(HELM_RELEASE) infra/helm/airbridge -f $(HELM_VALUES)
-	kubectl create secret generic edge-api-token --from-literal=token=1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
-	kubectl create secret generic edge-api-token --from-literal=token=1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+	
+	kubectl --context $(MINIKUBE_PROFILE) wait --for=condition=Ready pod -l app=$(HELM_RELEASE)-webserver --timeout=180s
+	WEB_POD=$$(kubectl --context $(MINIKUBE_PROFILE) get pods -l app=$(HELM_RELEASE)-webserver -o jsonpath='{.items[0].metadata.name}') && \
+	kubectl --context $(MINIKUBE_PROFILE) cp control-plane/dags/. $$WEB_POD:/opt/airflow/dags
+	
+	
 
 minikube-down:
 	-helm uninstall $(HELM_RELEASE)

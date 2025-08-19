@@ -34,14 +34,18 @@ spec:
 {{- end }}
         livenessProbe:
           exec:
-            command: ["bash", "-c", "airflow jobs check triggerer"]
-          initialDelaySeconds: 10
-          periodSeconds: 30
+            command: ["bash", "-c", "airflow jobs check --job-type TriggererJob"]
+          initialDelaySeconds: 30   # let it boot & migrate
+          periodSeconds: 10
+          timeoutSeconds: 10        # not 1
+          failureThreshold: 6
         readinessProbe:
           exec:
-            command: ["bash", "-c", "airflow jobs check triggerer"]
-          initialDelaySeconds: 5
+            command: ["bash", "-c", "airflow jobs check --job-type TriggererJob"]
+          initialDelaySeconds: 30   # let it boot & migrate
           periodSeconds: 10
+          timeoutSeconds: 10        # not 1
+          failureThreshold: 6
         volumeMounts:
         - name: airflow-config
           mountPath: /opt/airflow/airflow.cfg
