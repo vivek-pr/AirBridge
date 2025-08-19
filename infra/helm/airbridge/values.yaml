@@ -150,3 +150,12 @@ dagSync:
   intervalSeconds: 60
   backoffLimit: 3
   retries: 5
+
+postgres:
+  image: postgres
+  tag: "15"
+  pullPolicy: IfNotPresent
+  user: airflow
+  password: airflow
+  db: airflow
+  port: 5432

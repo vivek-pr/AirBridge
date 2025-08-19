@@ -32,6 +32,10 @@ spec:
         - name: EDGE_API_TOKEN_ID
           value: {{ .Values.edgeApi.tokenSecretId | quote }}
 {{- end }}
+        - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+          value: {{ printf "postgresql+psycopg2://%s:%s@%s-postgres:%d/%s" .Values.postgres.user .Values.postgres.password (include "airbridge.fullname" .) .Values.postgres.port .Values.postgres.db | quote }}
+        - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+          value: {{ printf "postgresql+psycopg2://%s:%s@%s-postgres:%d/%s" .Values.postgres.user .Values.postgres.password (include "airbridge.fullname" .) .Values.postgres.port .Values.postgres.db | quote }}
         livenessProbe:
           exec:
             command: ["bash", "-c", "airflow jobs check --job-type TriggererJob"]
