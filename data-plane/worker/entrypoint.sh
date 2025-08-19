@@ -20,4 +20,10 @@ PY
   )" && export CONTROL_PLANE_TOKEN
 fi
 
+export AIRFLOW__CORE__EXECUTOR=airflow.providers.edge3.executors.EdgeExecutor
+export AIRFLOW__CORE__EXECUTOR=airflow.providers.edge3.executors.EdgeExecutor
+export AIRFLOW__EDGE__API_ENABLED=True
+export AIRFLOW__EDGE__API_URL=https://localhost:8080/edge_worker/v1/rpcapi
+export AIRFLOW__API_AUTH__JWT_SECRET=1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+
 exec "$@"

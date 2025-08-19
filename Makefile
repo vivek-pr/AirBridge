@@ -21,7 +21,7 @@ build-edge-worker:
 	docker build -t airbridge-edge-worker:3.0.4 -f data-plane/worker/Dockerfile data-plane
 
 run-edge-worker: build-edge-worker
-	docker run --rm airbridge-edge-worker:3.0.4 --help
+	docker run --rm airbridge-edge-worker:3.0.4
 
 minikube-up: build-control-plane
 	minikube start -p $(MINIKUBE_PROFILE)
@@ -29,6 +29,8 @@ minikube-up: build-control-plane
 	minikube image load -p $(MINIKUBE_PROFILE) airbridge-scheduler:3.0.4
 	minikube image load -p $(MINIKUBE_PROFILE) airbridge-triggerer:3.0.4
 	helm upgrade --install $(HELM_RELEASE) infra/helm/airbridge -f $(HELM_VALUES)
+	kubectl create secret generic edge-api-token --from-literal=token=1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+	kubectl create secret generic edge-api-token --from-literal=token=1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
 
 minikube-down:
 	-helm uninstall $(HELM_RELEASE)

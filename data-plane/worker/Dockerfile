@@ -3,8 +3,9 @@ FROM python:3.11-slim
 ENV AIRFLOW_HOME=/opt/airflow \
     AIRFLOW_VERSION=3.0.4 \
     PY_VER=3.11
-ENV PATH="${AIRFLOW_HOME}/.local/bin:${PATH}" \
+ENV  PATH="${AIRFLOW_HOME}/.local/bin:${PATH}" \
     CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PY_VER}.txt"
+
 
 # Install curl and create non-root user
 RUN set -ex \
@@ -27,4 +28,4 @@ COPY worker/diag.sh /usr/local/bin/diag
 ENTRYPOINT ["/entrypoint.sh", "airflow"]
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl --fail --proto '=https' --tlsv1.2 "${CONTROL_PLANE_URL:-https://localhost:8080}/health" || exit 1
 
-CMD ["edge_worker"]
+CMD ["edge", "worker"]
