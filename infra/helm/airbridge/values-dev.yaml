@@ -75,3 +75,12 @@ airflow:
   #   delete_local_logs = True
   #   [api_auth]
   #   jwt_secret = ${JWT_SECRET}
+
+postgres:
+  image: postgres
+  tag: "15"
+  pullPolicy: IfNotPresent
+  user: airflow
+  password: airflow
+  db: airflow
+  port: 5432
