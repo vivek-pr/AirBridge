@@ -1,27 +1,37 @@
-FROM python:3.11-slim
+FROM python:3.12-alpine3.21
+ARG PY_VER=3.12
 ENV AIRFLOW_HOME=/opt/airflow AIRFLOW_VERSION=3.0.4
 ENV PATH="${AIRFLOW_HOME}/.local/bin:${PATH}"
-# (optional) set PY_VER to match base image’s Python
-ENV PY_VER=3.11
-ENV CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PY_VER}.txt"
 
 RUN set -ex \
-    && apt-get update && apt-get install -y --no-install-recommends curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && groupadd --gid 50000 airflow \
-    && useradd  --uid 50000 --gid airflow --home-dir ${AIRFLOW_HOME} --create-home airflow
+    && apk add --no-cache bash curl ca-certificates tzdata libstdc++ openssl libffi \
+    && apk add --no-cache --virtual .build-deps build-base linux-headers openssl-dev libffi-dev cargo \
+    && addgroup -S -g 50000 airflow \
+    && adduser -S -D -u 50000 -G airflow -h ${AIRFLOW_HOME} airflow \
+    && mkdir -p ${AIRFLOW_HOME} && chown -R airflow:airflow ${AIRFLOW_HOME}
 
 USER airflow
 WORKDIR ${AIRFLOW_HOME}
 
 # Install Airflow and required providers with matching constraints
-RUN pip install --no-cache-dir \
-    "apache-airflow==${AIRFLOW_VERSION}" \
-    "apache-airflow-providers-amazon" \
-    "apache-airflow-providers-edge3" \
-    --constraint "${CONSTRAINT_URL}"
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
+    && CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PY_VER}.txt" \
+    && echo "Using constraints: ${CONSTRAINT_URL}" \
+    && curl -fsSL "${CONSTRAINT_URL}" -o /tmp/constraints.txt \
+    && sed -i 's/^Flask==.*/Flask==2.3.3/' /tmp/constraints.txt \
+    && sed -i 's/^Werkzeug==.*/Werkzeug==3.0.6/' /tmp/constraints.txt \
+    && sed -i 's/^cryptography==.*/cryptography==44.0.1/' /tmp/constraints.txt \
+    && pip install --no-cache-dir \
+        "apache-airflow==${AIRFLOW_VERSION}" \
+        "apache-airflow-providers-amazon" \
+        "apache-airflow-providers-edge3" \
+        --constraint /tmp/constraints.txt \
+    && pip install --no-cache-dir apache-airflow[postgres]==${AIRFLOW_VERSION} --constraint /tmp/constraints.txt \
+    && pip check
 
-RUN pip install --no-cache-dir apache-airflow[postgres]==${AIRFLOW_VERSION}
+USER root
+RUN apk del .build-deps
+USER airflow
 
 # Copy your cfg with [core] executor = EdgeExecutor
 COPY airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
