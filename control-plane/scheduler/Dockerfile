@@ -1,6 +1,6 @@
 FROM python:3.12-alpine3.21
 ARG PY_VER=3.12
-ENV AIRFLOW_HOME=/opt/airflow AIRFLOW_VERSION=3.0.4
+ENV AIRFLOW_HOME=/opt/airflow AIRFLOW_VERSION=3.0.6
 ENV PATH="${AIRFLOW_HOME}/.local/bin:${PATH}"
 
 RUN set -ex \

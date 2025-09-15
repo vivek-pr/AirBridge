@@ -1,16 +1,17 @@
 FROM python:3.12-alpine3.21
 ARG PY_VER=3.12
-ENV AIRFLOW_HOME=/opt/airflow AIRFLOW_VERSION=3.0.4
+ENV AIRFLOW_HOME=/opt/airflow AIRFLOW_VERSION=3.0.6
 ENV PATH="${AIRFLOW_HOME}/.local/bin:${PATH}"
 
+USER root
 RUN set -ex \
     && apk add --no-cache bash curl ca-certificates tzdata libstdc++ openssl libffi \
-    && apk add --no-cache --virtual .build-deps build-base linux-headers openssl-dev libffi-dev cargo \
+    && apk add --no-cache --virtual .build-deps build-base linux-headers openssl-dev libffi-dev cargo python3-dev \
     && addgroup -S -g 50000 airflow \
     && adduser -S -D -u 50000 -G airflow -h ${AIRFLOW_HOME} airflow \
     && mkdir -p ${AIRFLOW_HOME} && chown -R airflow:airflow ${AIRFLOW_HOME}
 
-USER airflow
+
 WORKDIR ${AIRFLOW_HOME}
 
 # Install Airflow and required providers with matching constraints
@@ -29,9 +30,9 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
     && pip install --no-cache-dir apache-airflow[postgres]==${AIRFLOW_VERSION} --constraint /tmp/constraints.txt \
     && pip check
 
-USER root
+
 RUN apk del .build-deps
-USER airflow
+
 
 
 # Copy your cfg with [core] executor = EdgeExecutor
@@ -41,6 +42,7 @@ RUN mkdir -p ${AIRFLOW_HOME}/dags
 COPY dags/ ${AIRFLOW_HOME}/dags/
 
 COPY scripts/entrypoint.sh /entrypoint.sh
+USER airflow
 ENTRYPOINT ["/entrypoint.sh"]
 
 EXPOSE 8080

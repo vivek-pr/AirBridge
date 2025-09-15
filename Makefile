@@ -7,18 +7,18 @@ ENV ?= dev
 HELM_VALUES ?= infra/helm/airbridge/values-$(ENV).yaml
 
 build-webserver:
-	docker build -t airbridge-webserver:3.0.4 -f control-plane/webserver/Dockerfile control-plane
+	docker build -t airbridge-webserver:3.0.6 -f control-plane/webserver/Dockerfile control-plane
 
 build-scheduler:
-	docker build -t airbridge-scheduler:3.0.4 -f control-plane/scheduler/Dockerfile control-plane
+	docker build -t airbridge-scheduler:3.0.6 -f control-plane/scheduler/Dockerfile control-plane
 
 build-triggerer:
-	docker build -t airbridge-triggerer:3.0.4 -f control-plane/triggerer/Dockerfile control-plane
+	docker build -t airbridge-triggerer:3.0.6 -f control-plane/triggerer/Dockerfile control-plane
 
 build-control-plane: build-webserver build-scheduler build-triggerer
 
 build-edge-worker:
-	docker build -t airbridge-edge-worker:3.0.4 -f data-plane/worker/Dockerfile data-plane
+	docker build -t airbridge-edge-worker:3.0.6 -f data-plane/worker/Dockerfile data-plane
 
 run-edge-worker: build-edge-worker
 	# Grab token from K8s secret (if running locally against your minikube control plane)
@@ -26,7 +26,7 @@ run-edge-worker: build-edge-worker
 	docker run --rm \
 		-e CONTROL_PLANE_URL="http://localhost:8080" \
 		-e EDGE_API_TOKEN="$$EDGE_API_TOKEN" \
-		--name edge-worker airbridge-edge-worker:3.0.4
+		--name edge-worker airbridge-edge-worker:3.0.6
 
 create-secrets:
 	kubectl --context $(MINIKUBE_PROFILE) get secret jwt-secret >/dev/null 2>&1 || \
@@ -37,10 +37,11 @@ create-secrets:
 		--from-literal=token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlZGdlLXdvcmtlciIsImlhdCI6MTc1NTYzNTExNywibmJmIjoxNzU1NjM1MTEyLCJleHAiOjE3NTU2Mzg3MTcsImF1ZCI6InVybjphaXJmbG93LmFwYWNoZS5vcmc6dGFzayJ9.X4wUOu26SxckgkmmnytT_BYzYUernXmKw6Vy-cfkTak
 
 minikube-up: build-control-plane
-	minikube start -p $(MINIKUBE_PROFILE)
-	minikube image load -p $(MINIKUBE_PROFILE) airbridge-webserver:3.0.4
-	minikube image load -p $(MINIKUBE_PROFILE) airbridge-scheduler:3.0.4
-	minikube image load -p $(MINIKUBE_PROFILE) airbridge-triggerer:3.0.4
+		minikube start -p $(MINIKUBE_PROFILE) --wait=apiserver,system_pods,default_sa --wait-timeout=8m
+		$(MAKE) minikube-repair-kubeconfig
+	minikube image load -p $(MINIKUBE_PROFILE) airbridge-webserver:3.0.6
+	minikube image load -p $(MINIKUBE_PROFILE) airbridge-scheduler:3.0.6
+	minikube image load -p $(MINIKUBE_PROFILE) airbridge-triggerer:3.0.6
 	minikube image load -p $(MINIKUBE_PROFILE) postgres:15
 	helm upgrade --install $(HELM_RELEASE) infra/helm/airbridge -f $(HELM_VALUES)
 
@@ -65,6 +66,14 @@ minikube-up: build-control-plane
 	
 
 minikube-down:
-	-helm uninstall $(HELM_RELEASE)
-	minikube delete -p $(MINIKUBE_PROFILE)
+		-helm uninstall $(HELM_RELEASE)
+		minikube delete -p $(MINIKUBE_PROFILE)
 
+# Workaround for addon failures when kubeconfig inside node points to IPv6 localhost
+minikube-repair-kubeconfig:
+		@set -e; \
+		minikube ssh -p $(MINIKUBE_PROFILE) -- "sudo sed -i 's#https://localhost:8443#https://127.0.0.1:8443#' /var/lib/minikube/kubeconfig || true"; \
+		minikube ssh -p $(MINIKUBE_PROFILE) -- "grep server: /var/lib/minikube/kubeconfig || true"; \
+		kubectl --context $(MINIKUBE_PROFILE) wait --for=condition=Ready node --all --timeout=180s || true; \
+		minikube addons enable default-storageclass -p $(MINIKUBE_PROFILE) || true; \
+		minikube addons enable storage-provisioner -p $(MINIKUBE_PROFILE) || true

@@ -5,16 +5,17 @@ ENV AIRFLOW_HOME=/opt/airflow \
     AIRFLOW_VERSION=3.0.4
 ENV PATH="${AIRFLOW_HOME}/.local/bin:${PATH}"
 
+USER root
 
 # Install curl and create non-root user
 RUN set -ex \
     && apk add --no-cache bash curl ca-certificates tzdata libstdc++ openssl libffi \
-    && apk add --no-cache --virtual .build-deps build-base linux-headers openssl-dev libffi-dev cargo \
+    && apk add --no-cache --virtual .build-deps build-base linux-headers openssl-dev libffi-dev cargo python3-dev \
     && addgroup -S -g 50000 airflow \
     && adduser -S -D -u 50000 -G airflow -h ${AIRFLOW_HOME} airflow \
     && mkdir -p ${AIRFLOW_HOME} && chown -R airflow:airflow ${AIRFLOW_HOME}
 
-USER airflow
+
 WORKDIR ${AIRFLOW_HOME}
 
 # Install Airflow and providers
@@ -29,13 +30,13 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
     && pip install --no-cache-dir -r requirements.lock --constraint /tmp/constraints.txt \
     && pip check
 
-USER root
+
 RUN apk del .build-deps
-USER airflow
+
 
 COPY worker/entrypoint.sh /entrypoint.sh
 COPY worker/diag.sh /usr/local/bin/diag
-
+USER airflow
 ENTRYPOINT ["/entrypoint.sh", "airflow"]
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl --fail --proto '=http' --tlsv1.2 "${CONTROL_PLANE_URL:-https://localhost:8080}/api/v2/monitor/health" || exit 1
 

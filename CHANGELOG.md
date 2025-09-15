@@ -73,3 +73,17 @@ Rollback Instructions
 Notes
 
 - If any provider or transitive dep rejects `Flask>=2.3`, pin that package to a compatible version or rebuild it with relaxed constraints. `pip check` in the Dockerfiles will force a hard failure to catch such cases early.
+
+Auth configuration fixes (Airflow 3.0.x)
+
+- Set `core.auth_manager` to `airflow.auth.managers.simple.SimpleAuthManager` for SimpleAuth.
+- Use FastAPI JWT auth backend: `[api_auth] backend = airflow.api_fastapi.auth.backend.jwt` and keep `jwt_secret` configured.
+- Removed incorrect module path with attribute suffix (`...default.allow_all`) that caused import errors at startup.
+- Added `make test-auth` to validate auth manager and API backend import paths inside all images.
+
+Upgrade control-plane to Airflow 3.0.6
+
+- Bumped AIRFLOW_VERSION to 3.0.6 in control-plane Dockerfiles to align with SimpleAuthManager availability under `airflow.auth.*`.
+- Updated Helm image tags (`values.yaml`, `values-dev.yaml`) to `3.0.6` so running pods use the new images.
+- Updated Makefile image tags and `test-auth` target to use `:3.0.6` for control-plane images.
+- If running older images, rebuild with `make build-control-plane` before testing.

@@ -1,6 +1,6 @@
 webserver:
   image: airbridge-webserver
-  tag: "3.0.4"
+  tag: "3.0.6"
   pullPolicy: IfNotPresent
   replicas: 1
   service:
@@ -22,7 +22,7 @@ webserver:
     minAvailable: 1
 scheduler:
   image: airbridge-scheduler
-  tag: "3.0.4"
+  tag: "3.0.6"
   pullPolicy: IfNotPresent
   replicas: 1
   hpa:
@@ -41,7 +41,7 @@ scheduler:
     minAvailable: 1
 triggerer:
   image: airbridge-triggerer
-  tag: "3.0.4"
+  tag: "3.0.6"
   pullPolicy: IfNotPresent
   replicas: 1
   hpa:
@@ -113,13 +113,14 @@ airflow:
   config: |
     [core]
     load_examples = False
+    auth_manager = airflow.auth.managers.simple.SimpleAuthManager
     [logging]
     remote_logging = True
     remote_log_conn_id = aws_default
     remote_base_log_folder = s3://airbridge-logs/logs
     delete_local_logs = True
     [api_auth]
-    backend = airflow.api_fastapi.auth.backend.default.allow_all
+    backend = airflow.api_fastapi.auth.backend.jwt
     jwt_secret = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlZGdlLXdvcmtlciIsImlhdCI6MTc1NTYzNTExNywibmJmIjoxNzU1NjM1MTEyLCJleHAiOjE3NTU2Mzg3MTcsImF1ZCI6InVybjphaXJmbG93LmFwYWNoZS5vcmc6dGFzayJ9.X4wUOu26SxckgkmmnytT_BYzYUernXmKw6Vy-cfkTak
     [edge]
     api_enabled = True
