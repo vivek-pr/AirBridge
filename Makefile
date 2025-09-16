@@ -1,6 +1,10 @@
 .PHONY: build-webserver build-scheduler build-triggerer build-control-plane build-edge-worker run-edge-worker minikube-up minikube-down
 
 MINIKUBE_PROFILE ?= airbridge
+K8S_VERSION ?= v1.30.2
+MINIKUBE_CPUS ?= 4
+MINIKUBE_MEMORY ?= 6000
+MINIKUBE_DISK ?= 40g
 HELM_RELEASE ?= airbridge-control-plane
 
 ENV ?= dev
@@ -52,8 +56,22 @@ create-secrets:
 		  echo "Created secret airflow-simple-auth (admin password: $${PASS})"; \
 		)
 
+
 minikube-up: build-control-plane
-		minikube start -p $(MINIKUBE_PROFILE) --wait=apiserver,system_pods,default_sa --wait-timeout=8m
+		minikube start -p $(MINIKUBE_PROFILE) \
+			--driver=docker \
+			--image-repository=registry.k8s.io \
+			--kubernetes-version=$(K8S_VERSION) \
+			--cpus=$(MINIKUBE_CPUS) --memory=$(MINIKUBE_MEMORY) --disk-size=$(MINIKUBE_DISK) \
+			--extra-config=kubelet.cgroup-driver=systemd \
+			--wait=apiserver,system_pods,default_sa,kubelet,node-readiness \
+			--wait-timeout=10m --alsologtostderr -v=1
+	$(MAKE) minikube-repair-kubeconfig
+	# Ensure kube-proxy and CoreDNS are installed (observed missing on some Docker Desktop envs)
+	-minikube ssh -p $(MINIKUBE_PROFILE) -- "sudo env PATH=\"/var/lib/minikube/binaries/$(K8S_VERSION):\$$PATH\" kubeadm init phase addon kube-proxy --config /var/tmp/minikube/kubeadm.yaml" 
+	-minikube ssh -p $(MINIKUBE_PROFILE) -- "sudo env PATH=\"/var/lib/minikube/binaries/$(K8S_VERSION):\$$PATH\" kubeadm init phase addon coredns --config /var/tmp/minikube/kubeadm.yaml" 
+	# Install flannel CNI when using kubeadm podSubnet 10.244.0.0/16
+	-kubectl --context $(MINIKUBE_PROFILE) apply -f https://raw.githubusercontent.com/flannel-io/flannel/v0.25.5/Documentation/kube-flannel.yml
 		$(MAKE) minikube-repair-kubeconfig
 	minikube image load -p $(MINIKUBE_PROFILE) airbridge-webserver:3.0.6
 	minikube image load -p $(MINIKUBE_PROFILE) airbridge-scheduler:3.0.6
@@ -65,9 +83,12 @@ minikube-up: build-control-plane
 	$(MAKE) create-secrets
 
 	# wait for pods
-	kubectl --context $(MINIKUBE_PROFILE) wait --for=condition=Ready pod -l app=$(HELM_RELEASE)-postgres --timeout=180s
-	kubectl --context $(MINIKUBE_PROFILE) wait --for=condition=Ready pod -l app=$(HELM_RELEASE)-webserver --timeout=180s
-	kubectl --context $(MINIKUBE_PROFILE) wait --for=condition=Ready pod -l app=$(HELM_RELEASE)-scheduler --timeout=180s
+	# Wait for core DNS to stabilize (best-effort)
+	-kubectl --context $(MINIKUBE_PROFILE) -n kube-system wait --for=condition=Ready pod -l k8s-app=kube-dns --timeout=300s || true
+	# Wait for control-plane pods
+	kubectl --context $(MINIKUBE_PROFILE) wait --for=condition=Ready pod -l app=$(HELM_RELEASE)-postgres --timeout=300s || true
+	kubectl --context $(MINIKUBE_PROFILE) wait --for=condition=Ready pod -l app=$(HELM_RELEASE)-webserver --timeout=600s || true
+	kubectl --context $(MINIKUBE_PROFILE) wait --for=condition=Ready pod -l app=$(HELM_RELEASE)-scheduler --timeout=600s || true
 
 	# copy DAGs to webserver
 	WEB_POD=$$(kubectl --context $(MINIKUBE_PROFILE) get pods -l app=$(HELM_RELEASE)-webserver -o jsonpath='{.items[0].metadata.name}') && \
