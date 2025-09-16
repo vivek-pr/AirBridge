@@ -8,17 +8,25 @@ HELM_VALUES ?= infra/helm/airbridge/values-$(ENV).yaml
 
 build-webserver:
 	docker build -t airbridge-webserver:3.0.6 -f control-plane/webserver/Dockerfile control-plane
+	# Backward-compat tag expected by some scripts/tests
+	-docker tag airbridge-webserver:3.0.6 airbridge-webserver:3.0.4
 
 build-scheduler:
 	docker build -t airbridge-scheduler:3.0.6 -f control-plane/scheduler/Dockerfile control-plane
+	# Backward-compat tag expected by some scripts/tests
+	-docker tag airbridge-scheduler:3.0.6 airbridge-scheduler:3.0.4
 
 build-triggerer:
 	docker build -t airbridge-triggerer:3.0.6 -f control-plane/triggerer/Dockerfile control-plane
+	# Backward-compat tag expected by some scripts/tests
+	-docker tag airbridge-triggerer:3.0.6 airbridge-triggerer:3.0.4
 
 build-control-plane: build-webserver build-scheduler build-triggerer
 
 build-edge-worker:
 	docker build -t airbridge-edge-worker:3.0.6 -f data-plane/worker/Dockerfile data-plane
+	# Backward-compat tag expected by some scripts/tests
+	-docker tag airbridge-edge-worker:3.0.6 airbridge-edge-worker:3.0.4
 
 run-edge-worker: build-edge-worker
 	# Grab token from K8s secret (if running locally against your minikube control plane)
@@ -35,6 +43,14 @@ create-secrets:
 	kubectl --context $(MINIKUBE_PROFILE) get secret edge-api-token >/dev/null 2>&1 || \
 		kubectl --context $(MINIKUBE_PROFILE) create secret generic edge-api-token \
 		--from-literal=token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlZGdlLXdvcmtlciIsImlhdCI6MTc1NTYzNTExNywibmJmIjoxNzU1NjM1MTEyLCJleHAiOjE3NTU2Mzg3MTcsImF1ZCI6InVybjphaXJmbG93LmFwYWNoZS5vcmc6dGFzayJ9.X4wUOu26SxckgkmmnytT_BYzYUernXmKw6Vy-cfkTak
+	# SimpleAuth passwords secret (contains JSON: {"admin":"<password>"})
+	kubectl --context $(MINIKUBE_PROFILE) get secret airflow-simple-auth >/dev/null 2>&1 || \
+		( \
+		  PASS="$${AIRFLOW_ADMIN_PASSWORD:-$$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)}"; \
+		  kubectl --context $(MINIKUBE_PROFILE) create secret generic airflow-simple-auth \
+		    --from-literal=simple_auth_manager_passwords.json="{\"admin\":\"$${PASS}\"}"; \
+		  echo "Created secret airflow-simple-auth (admin password: $${PASS})"; \
+		)
 
 minikube-up: build-control-plane
 		minikube start -p $(MINIKUBE_PROFILE) --wait=apiserver,system_pods,default_sa --wait-timeout=8m
