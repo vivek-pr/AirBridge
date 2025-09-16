@@ -54,6 +54,11 @@ spec:
         - name: airflow-config
           mountPath: /opt/airflow/airflow.cfg
           subPath: airflow.cfg
+{{- if and .Values.simpleAuth.enabled .Values.simpleAuth.passwordsSecret.name }}
+        - name: simple-auth-passwords
+          mountPath: {{ .Values.simpleAuth.passwordsMountPath }}
+          readOnly: true
+{{- end }}
 {{- if .Values.dags.persistence.enabled }}
         - name: dags
           mountPath: {{ .Values.dags.path }}
@@ -65,6 +70,14 @@ spec:
       - name: airflow-config
         configMap:
           name: {{ include "airbridge.fullname" . }}-config
+{{- if and .Values.simpleAuth.enabled .Values.simpleAuth.passwordsSecret.name }}
+      - name: simple-auth-passwords
+        secret:
+          secretName: {{ .Values.simpleAuth.passwordsSecret.name }}
+          items:
+            - key: {{ .Values.simpleAuth.passwordsSecret.key }}
+              path: simple_auth_manager_passwords.json
+{{- end }}
 {{- if .Values.dags.persistence.enabled }}
       - name: dags
         persistentVolumeClaim:

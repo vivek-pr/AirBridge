@@ -68,7 +68,9 @@ airflow:
   config: |
     [core]
     load_examples = False
-    auth_manager = airflow.auth.managers.simple.SimpleAuthManager
+    auth_manager = airflow.api_fastapi.auth.managers.simple.simple_auth_manager.SimpleAuthManager
+    simple_auth_manager_users = "{{ .Values.simpleAuth.adminUser }}:admin"
+    simple_auth_manager_passwords_file = {{ .Values.simpleAuth.passwordsFilePath }}
     [logging]
     remote_logging = True
     remote_log_conn_id = aws_default
@@ -91,3 +93,15 @@ postgres:
   password: airflow
   db: airflow
   port: 5432
+
+# SimpleAuth configuration for dev
+simpleAuth:
+  enabled: true
+  adminUser: admin
+  passwordsFilePath: /opt/airflow/secrets/simple_auth_manager_passwords.json
+  passwordsMountPath: /opt/airflow/secrets
+  passwordsSecret:
+    name: airflow-simple-auth
+    key: simple_auth_manager_passwords.json
+  createSecret: false
+  adminPassword: ""

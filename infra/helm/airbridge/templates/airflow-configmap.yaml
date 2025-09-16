@@ -4,4 +4,4 @@ metadata:
   name: {{ include "airbridge.fullname" . }}-config
 data:
   airflow.cfg: |
-{{ .Values.airflow.config | nindent 4 }}
+{{ tpl .Values.airflow.config . | nindent 4 }}

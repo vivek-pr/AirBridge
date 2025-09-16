@@ -113,7 +113,9 @@ airflow:
   config: |
     [core]
     load_examples = False
-    auth_manager = airflow.auth.managers.simple.SimpleAuthManager
+    auth_manager = airflow.api_fastapi.auth.managers.simple.simple_auth_manager.SimpleAuthManager
+    simple_auth_manager_users = "{{ .Values.simpleAuth.adminUser }}:admin"
+    simple_auth_manager_passwords_file = {{ .Values.simpleAuth.passwordsFilePath }}
     [logging]
     remote_logging = True
     remote_log_conn_id = aws_default
@@ -164,3 +166,19 @@ postgres:
   password: airflow
   db: airflow
   port: 5432
+
+simpleAuth:
+  enabled: true
+  # Admin username for SimpleAuthManager
+  adminUser: admin
+  # Path inside the container to the passwords JSON file
+  passwordsFilePath: /opt/airflow/secrets/simple_auth_manager_passwords.json
+  # Directory to mount the secret volume (must match the directory of passwordsFilePath)
+  passwordsMountPath: /opt/airflow/secrets
+  # Secret that holds the passwords JSON (e.g. {"admin": "<password>"})
+  passwordsSecret:
+    name: airflow-simple-auth
+    key: simple_auth_manager_passwords.json
+  # Optionally have the chart create the secret from values (not recommended for prod)
+  createSecret: false
+  adminPassword: ""
