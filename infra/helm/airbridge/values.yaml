@@ -171,10 +171,10 @@ simpleAuth:
   enabled: true
   # Admin username for SimpleAuthManager
   adminUser: admin
-  # Path inside the container to the passwords JSON file
-  passwordsFilePath: /opt/airflow/secrets/simple_auth_manager_passwords.json
-  # Directory to mount the secret volume (must match the directory of passwordsFilePath)
-  passwordsMountPath: /opt/airflow/secrets
+  # Writable path inside the container where Airflow reads/writes the passwords JSON
+  passwordsFilePath: /opt/airflow/simple-auth/simple_auth_manager_passwords.json
+  # Readonly secret mount path containing the JSON file
+  passwordsMountPath: /opt/airflow/simple-auth-ro
   # Secret that holds the passwords JSON (e.g. {"admin": "<password>"})
   passwordsSecret:
     name: airflow-simple-auth

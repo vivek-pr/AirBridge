@@ -98,8 +98,8 @@ postgres:
 simpleAuth:
   enabled: true
   adminUser: admin
-  passwordsFilePath: /opt/airflow/secrets/simple_auth_manager_passwords.json
-  passwordsMountPath: /opt/airflow/secrets
+  passwordsFilePath: /opt/airflow/simple-auth/simple_auth_manager_passwords.json
+  passwordsMountPath: /opt/airflow/simple-auth-ro
   passwordsSecret:
     name: airflow-simple-auth
     key: simple_auth_manager_passwords.json

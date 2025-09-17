@@ -92,11 +92,13 @@ minikube-up: build-control-plane
 
 	# copy DAGs to webserver
 	WEB_POD=$$(kubectl --context $(MINIKUBE_PROFILE) get pods -l app=$(HELM_RELEASE)-webserver -o jsonpath='{.items[0].metadata.name}') && \
-	kubectl --context $(MINIKUBE_PROFILE) cp control-plane/dags/. $$WEB_POD:/opt/airflow/dags
+	kubectl --context $(MINIKUBE_PROFILE) exec $$WEB_POD -- sh -lc 'mkdir -p /opt/airflow/dags && rm -rf /opt/airflow/dags/* /opt/airflow/dags/.[!.]* /opt/airflow/dags/..?* || true' && \
+	kubectl --context $(MINIKUBE_PROFILE) cp control-plane/dags/. $$WEB_POD:/opt/airflow/dags/
 
 	# copy DAGs to scheduler and reserialize
 	SC_POD=$$(kubectl --context $(MINIKUBE_PROFILE) get pods -l app=$(HELM_RELEASE)-scheduler -o jsonpath='{.items[0].metadata.name}') && \
-	kubectl --context $(MINIKUBE_PROFILE) cp control-plane/dags/. $$SC_POD:/opt/airflow/dags && \
+	kubectl --context $(MINIKUBE_PROFILE) exec $$SC_POD -- sh -lc 'mkdir -p /opt/airflow/dags && rm -rf /opt/airflow/dags/* /opt/airflow/dags/.[!.]* /opt/airflow/dags/..?* || true' && \
+	kubectl --context $(MINIKUBE_PROFILE) cp control-plane/dags/. $$SC_POD:/opt/airflow/dags/ && \
 	kubectl --context $(MINIKUBE_PROFILE) exec $$SC_POD -- bash -lc 'airflow db check && airflow dags reserialize'
 
 	

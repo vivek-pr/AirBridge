@@ -12,6 +12,32 @@ spec:
       labels:
         app: {{ include "airbridge.fullname" . }}-triggerer
     spec:
+      initContainers:
+{{- if and .Values.simpleAuth.enabled .Values.simpleAuth.passwordsSecret.name }}
+      - name: init-simple-auth
+        image: "{{ .Values.triggerer.image }}:{{ .Values.triggerer.tag }}"
+        command: ["/bin/sh","-c"]
+        args:
+          - |
+            set -euo pipefail
+            SRC="{{ .Values.simpleAuth.passwordsMountPath }}/{{ .Values.simpleAuth.passwordsSecret.key }}"
+            DST_DIR="/opt/airflow/simple-auth"
+            DST_FILE="${DST_DIR}/simple_auth_manager_passwords.json"
+            mkdir -p "${DST_DIR}"
+            if [ -f "${SRC}" ]; then
+              cp "${SRC}" "${DST_FILE}"
+            else
+              echo '{}' > "${DST_FILE}"
+            fi
+            chown 50000:50000 "${DST_FILE}" || true
+            chmod 600 "${DST_FILE}" || true
+        volumeMounts:
+        - name: simple-auth-passwords
+          mountPath: {{ .Values.simpleAuth.passwordsMountPath }}
+          readOnly: true
+        - name: simple-auth-writable
+          mountPath: /opt/airflow/simple-auth
+{{- end }}
       containers:
       - name: triggerer
         image: "{{ .Values.triggerer.image }}:{{ .Values.triggerer.tag }}"
@@ -58,6 +84,8 @@ spec:
         - name: simple-auth-passwords
           mountPath: {{ .Values.simpleAuth.passwordsMountPath }}
           readOnly: true
+        - name: simple-auth-writable
+          mountPath: /opt/airflow/simple-auth
 {{- end }}
 {{- if .Values.dags.persistence.enabled }}
         - name: dags
@@ -76,7 +104,9 @@ spec:
           secretName: {{ .Values.simpleAuth.passwordsSecret.name }}
           items:
             - key: {{ .Values.simpleAuth.passwordsSecret.key }}
-              path: simple_auth_manager_passwords.json
+              path: {{ .Values.simpleAuth.passwordsSecret.key }}
+      - name: simple-auth-writable
+        emptyDir: {}
 {{- end }}
 {{- if .Values.dags.persistence.enabled }}
       - name: dags

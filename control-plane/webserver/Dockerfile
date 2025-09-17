@@ -40,6 +40,7 @@ COPY airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
 
 RUN mkdir -p ${AIRFLOW_HOME}/dags
 COPY dags/ ${AIRFLOW_HOME}/dags/
+RUN chown -R airflow:airflow ${AIRFLOW_HOME}/dags
 
 COPY scripts/entrypoint.sh /entrypoint.sh
 USER airflow
