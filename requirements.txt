@@ -1,4 +1,4 @@
-apache-airflow==3.0.4
+apache-airflow==3.2.1rc1
 apache-airflow-providers-amazon==9.12.0
 boto3
 moto[s3]
